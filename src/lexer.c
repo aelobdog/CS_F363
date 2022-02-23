@@ -32,7 +32,7 @@ void consolePrintNoComments(char* testcaseFile) {
     if (!g) { perror("FILE OPEN ERROR : "); }
 
     char c;
-    while(fscanf(g, "%c", &c) != EOF) {
+    while(! feof(c = fgetc(g))) {
         // if(c == '%') {
         //     c = fgetc(g);
         //     while(c != '\n') {
