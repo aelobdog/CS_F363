@@ -61,237 +61,64 @@ void insert(hashTableEntry* ht, u64 size, u64 hash, token T) {
     iter->hash = hash;
 }
 
+void InsertInGlobalHashTable(char* name, tokenType type, hashTableEntry* globalHashTable) {
+    u64 tHash = hash(name);
+    token T;
+    T.line = 0; T.type = type; T.value.idPtr = strdup(name);
+    insert(globalHashTable, HASHTABLESIZE, tHash, T);
+    free(T.value.idPtr);
+}
+
 void initGlobalHashTable(hashTableEntry* globalHashTable) {
     u64 tHash;
     token T;
     initHashTable(globalHashTable, HASHTABLESIZE);
 
-    tHash = hash("endif");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_ENDIF; T.value.idPtr = strdup("endif");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("call");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_CALL; T.value.idPtr = strdup("call");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    T.value.idPtr = NULL;
-    free(T.value.idPtr);
-
-    tHash = hash("with");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_WITH; T.value.idPtr = strdup("with");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("parameters");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_PARAMETERS; T.value.idPtr = strdup("parameters");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("end");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_END; T.value.idPtr = strdup("end");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("while");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_WHILE; T.value.idPtr = strdup("while");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("union");
-    //printf("hash of union : %ld\n", tHash);
-    T.line = 0; T.type = TK_UNION; T.value.idPtr = strdup("union");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    T.value.idPtr = NULL;
-    free(T.value.idPtr);
-
-    tHash = hash("endunion");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_ENDUNION; T.value.idPtr = strdup("endunion");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("definetype");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_DEFINETYPE; T.value.idPtr = strdup("definetype");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("as");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_AS; T.value.idPtr = strdup("as");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("type");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_TYPE; T.value.idPtr = strdup("type");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("_main");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_MAIN; T.value.idPtr = strdup("_main");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("global");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_GLOBAL; T.value.idPtr = strdup("global");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("parameter");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_PARAMETER; T.value.idPtr = strdup("parameter");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("list");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_LIST; T.value.idPtr = strdup("list");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("input");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_INPUT; T.value.idPtr = strdup("input");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("output");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_OUTPUT; T.value.idPtr = strdup("output");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("int");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_INT; T.value.idPtr = strdup("int");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("real");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_REAL; T.value.idPtr = strdup("real");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("endwhile");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_ENDWHILE; T.value.idPtr = strdup("endwhile");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("if");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_IF; T.value.idPtr = strdup("if");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("then");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_THEN; T.value.idPtr = strdup("then");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("read");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_READ; T.value.idPtr = strdup("read");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("write");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_WRITE; T.value.idPtr = strdup("write");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("return");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_RETURN; T.value.idPtr = strdup("return");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("record");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_RECORD; T.value.idPtr = strdup("record");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("endrecord");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_ENDRECORD; T.value.idPtr = strdup("endrecord");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
-
-    tHash = hash("else");
-    //printf("hash : %ld\n", tHash);
-    T.line = 0; T.type = TK_ELSE; T.value.idPtr = strdup("else");
-    insert(globalHashTable, HASHTABLESIZE, tHash, T);
-    free(T.value.idPtr);
-    T.value.idPtr = NULL;
+    InsertInGlobalHashTable("endif", TK_ENDIF, globalHashTable);
+    InsertInGlobalHashTable("call", TK_CALL, globalHashTable);
+    InsertInGlobalHashTable("with", TK_WITH, globalHashTable);
+    InsertInGlobalHashTable("parameters", TK_PARAMETERS, globalHashTable);
+    InsertInGlobalHashTable("end", TK_END, globalHashTable);
+    InsertInGlobalHashTable("while", TK_WHILE, globalHashTable);
+    InsertInGlobalHashTable("union", TK_UNION, globalHashTable);
+    InsertInGlobalHashTable("endunion", TK_ENDUNION, globalHashTable);
+    InsertInGlobalHashTable("definetype", TK_DEFINETYPE, globalHashTable);
+    InsertInGlobalHashTable("as", TK_AS, globalHashTable);
+    InsertInGlobalHashTable("type", TK_TYPE, globalHashTable);
+    InsertInGlobalHashTable("global", TK_GLOBAL, globalHashTable);
+    InsertInGlobalHashTable("parameter", TK_PARAMETER, globalHashTable);
+    InsertInGlobalHashTable("list", TK_LIST, globalHashTable);
+    InsertInGlobalHashTable("input", TK_INPUT, globalHashTable);
+    InsertInGlobalHashTable("output", TK_OUTPUT, globalHashTable);
+    InsertInGlobalHashTable("int", TK_INT, globalHashTable);
+    InsertInGlobalHashTable("real", TK_REAL, globalHashTable);
+    InsertInGlobalHashTable("endwhile", TK_ENDWHILE, globalHashTable);
+    InsertInGlobalHashTable("if", TK_IF, globalHashTable);
+    InsertInGlobalHashTable("then", TK_THEN, globalHashTable);
+    InsertInGlobalHashTable("read", TK_READ, globalHashTable);
+    InsertInGlobalHashTable("write", TK_WRITE, globalHashTable);
+    InsertInGlobalHashTable("return", TK_RETURN, globalHashTable);
+    InsertInGlobalHashTable("record", TK_RECORD, globalHashTable);
+    InsertInGlobalHashTable("endrecord", TK_ENDRECORD, globalHashTable);
+    InsertInGlobalHashTable("else", TK_ELSE, globalHashTable);
 }
 
 
 int isKeyword(token t) {
     switch(t.type) {
-        case TK_WITH:
-        case TK_PARAMETERS:
-        case TK_END:
-        case TK_WHILE:
-        case TK_UNION:
-        case TK_ENDUNION:
-        case TK_DEFINETYPE:
-        case TK_AS:
-        case TK_TYPE:
-        case TK_MAIN:
-        case TK_GLOBAL:
-        case TK_PARAMETER:
-        case TK_LIST:
-        case TK_INPUT:
-        case TK_OUTPUT:
-        case TK_INT:
-        case TK_REAL:
-        case TK_ENDWHILE:
-        case TK_THEN:
-        case TK_ENDIF:
-        case TK_READ:
-        case TK_WRITE:
-        case TK_RETURN:
-        case TK_CALL:
-        case TK_RECORD:
-        case TK_ENDRECORD:
+        case TK_WITH:           case TK_PARAMETERS:
+        case TK_END:            case TK_WHILE:
+        case TK_UNION:          case TK_ENDUNION:
+        case TK_DEFINETYPE:     case TK_AS:
+        case TK_TYPE:           case TK_MAIN:
+        case TK_GLOBAL:         case TK_PARAMETER:
+        case TK_LIST:           case TK_INPUT:
+        case TK_OUTPUT:         case TK_INT:
+        case TK_REAL:           case TK_ENDWHILE:
+        case TK_THEN:           case TK_ENDIF:
+        case TK_READ:           case TK_WRITE:
+        case TK_RETURN:         case TK_CALL:
+        case TK_RECORD:         case TK_ENDRECORD:
         case TK_ELSE: return 1;
         default: return 0;
     }
@@ -299,10 +126,7 @@ int isKeyword(token t) {
 
 // -------------------------------------
 
-int isDigit(char c) {
-    if (c>='0' && c<='9') return 1;
-    return 0;
-}
+#define isDigit(c) ((c>='0' && c<='9'))
 
 void reportLexError(char* tokenName) {
     printf("LEX ERROR : Unknown Token `%s`\n", tokenName);
@@ -476,15 +300,11 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     inProgress = 1;
 
     while(inProgress) {
-        // if (b->forward != b.fBuf) b->forward --;
         c = *(b->forward);
-        // printf("c = %c, state = %d\n",c,state);
-        // printf("on line : %ld\n", b->currentLine);
         incForward(b);
 
-        // if (c == '\n') {
-        //     b->currentLine ++;
-        // }
+        // printf("c = %c, state = %d\n",c,state);
+        // printf("on line : %ld\n", b->currentLine);
         
         switch(state) {
         case 0:
@@ -568,24 +388,33 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             else reportLexError(charBuf);
             break;
         case 2:
-            charBuf[cbPtr++] = c;
             if(c >= 'A' && c <= 'Z') state = 4;
             else if(isDigit(c)) state = 5;
-            else if(!(c >= 'a' && c <= 'z')) state = 3;
+            else if(!(c >= 'a' && c <= 'z')) { state = 6; break; }
+            charBuf[cbPtr++] = c;
             break;
         case 3:
-            //search
-        case 4:
-            charBuf[cbPtr++] = c;
-            if(c >= '0' && c <= '9') state = 5;
-            else if(!(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) reportLexError(charBuf); 
+            // STATE NOT REQUIRED.
             break;
-        case 5:
+        case 4:
+            if(isDigit(c)) state = 5;
+            else if(!(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) reportLexError(charBuf); 
             charBuf[cbPtr++] = c;
-            if(!(c >= '0' && c <= '9')) state = 6;
+            break;  
+        case 5:
+            if(!isDigit(c)) { state = 6; break; }
+            charBuf[cbPtr++] = c;
             break;
         case 6:
-            //search
+            inProgress = 0;
+            decForward(b);
+            decForward(b);
+            if (!strcmp("_main", charBuf)) {
+                T.type = TK_MAIN; T.value.idPtr = strdup("_main");
+            } else {
+                T.type = TK_FUNID; T.value.idPtr = strdup(charBuf);
+            }
+            break;
         case 7:
             charBuf[cbPtr++] = c;
             if(c == '-') state = 8;
