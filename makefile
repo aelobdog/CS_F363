@@ -1,2 +1,2 @@
-all:
-	gcc -o bin/driver src/parser.c src/lexer.c -ggdb
+driver:
+	gcc -o bin/driver src/driver.c src/lexer.c -ggdb

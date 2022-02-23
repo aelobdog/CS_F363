@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "lexerDef.h"
 
+#define HASHTABLESIZE 512
+
 // loadBuffer : loads the given buffer with 4K memory read from given file
 FILE* loadBuffer(char*, FILE*, int*);
 
@@ -21,5 +23,11 @@ void prettyHeading();
 
 // initGlobalHashTable : to initialize the global hash table
 void initGlobalHashTable(hashTableEntry*);
+
+// removeComments : function to clean the file (removing all the comments)
+void removeComments(char*, char*);
+
+// consolePrintNoComments : print the comment free code to the console
+void consolePrintNoComments(char*);
 
 #endif

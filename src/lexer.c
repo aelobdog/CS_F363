@@ -6,6 +6,47 @@
 #define MAX_LITERAL_LEN 32
 #define HASHTABLESIZE 512
 
+void removeComments(char *testcaseFile, char *cleanFile) {
+    FILE* f = fopen(cleanFile,"w");
+    FILE* g = fopen(testcaseFile,"r");
+    int c;
+    while(!feof(g)) {
+        c = fgetc(g);
+        if (c == '%') {
+            c = fgetc(g);
+            while(c != '\n') {
+                g++;
+                c = fgetc(g);
+            }
+        }
+        fputc(c,f);
+        g++;
+    }
+    fclose(g);
+    fclose(f);
+}
+
+void consolePrintNoComments(char* testcaseFile) {
+    FILE* g = fopen(testcaseFile,"r");
+    printf("filename : %s\n", testcaseFile);
+    if (!g) { perror("FILE OPEN ERROR : "); }
+
+    char c;
+    while(fscanf(g, "%c", &c) != EOF) {
+        // if(c == '%') {
+        //     c = fgetc(g);
+        //     while(c != '\n') {
+        //         g++;
+        //         if(feof(g)) exit(0);
+        //         c = fgetc(g);
+        //     }
+        // }
+        printf("%c",c);
+        g++;
+    }
+    fclose(g);
+}
+
 void initHashTable(hashTableEntry* ht, u64 size) {
     while (size > 0) {
         ht->Tptr = NULL;
@@ -321,42 +362,15 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
                 case '[': state = 56; break;
                 case ']': state = 57; break;
                 case '%': state = 58; break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9': state = 16; break;
-                case 'b': 
-                case 'c': 
-                case 'd': state = 29; break;
-                case 'a':
-                case 'e':
-                case 'f':
-                case 'g':
-                case 'h':
-                case 'i':
-                case 'j':
-                case 'k':
-                case 'l':
-                case 'm':
-                case 'n':
-                case 'o':
-                case 'p':
-                case 'q':
-                case 'r':
-                case 's':
-                case 't':
-                case 'u':
-                case 'v':
-                case 'w':
-                case 'x':
-                case 'y':
-                case 'z': state = 33; break;
+                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': 
+                    state = 16; break;
+
+                case 'b': case 'c': case 'd':  
+                    state = 29; break;
+
+                case 'a': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': 
+                case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z': 
+                    state = 33; break;
                 
                 case '\n':
                     if (c == '\n') {
@@ -718,9 +732,6 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     }
 
     T.line = b->currentLine;
-    // if (c == '\n') {
-    //     b->currentLine ++;
-    // }
     setTokenValue(&T, charBuf, cbPtr);
     return T;
 }
