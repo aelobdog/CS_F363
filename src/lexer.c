@@ -249,28 +249,17 @@ void setTokenValue(token* T, char* charBuf, int cbPtr) {
     {
     // setting the token value to 0 because for these tokens, 
     // the token's type provides all the necessary information about the token
-    case TK_EQ:
-    case TK_NE:
-    case TK_NOT:
-    case TK_AND:
-    case TK_OR:
-    case TK_DIV:
-    case TK_MUL:
-    case TK_PLUS:
-    case TK_MINUS:
-    case TK_OP: 
-    case TK_CL:
-    case TK_DOT:
-    case TK_COLON:
-    case TK_SEM:
-    case TK_COMMA:
-    case TK_SQL:
-    case TK_SQR:
-    case TK_GT:
-    case TK_GE:
-    case TK_LT:
-    case TK_LE:
-    case TK_ASSIGNOP:
+    case TK_EQ:     case TK_NE:
+    case TK_NOT:    case TK_AND:
+    case TK_OR:     case TK_DIV:
+    case TK_MUL:    case TK_PLUS:
+    case TK_MINUS:  case TK_OP: 
+    case TK_CL:     case TK_DOT:
+    case TK_COLON:  case TK_SEM:
+    case TK_COMMA:  case TK_SQL:
+    case TK_SQR:    case TK_GT:
+    case TK_GE:     case TK_LT:
+    case TK_LE:     case TK_ASSIGNOP:
         T->value.num = 0;
         break;
     
@@ -398,7 +387,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             break;
         case 4:
             if(isDigit(c)) state = 5;
-            else if(!(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) reportLexError(charBuf); 
+            else if(!(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) { state = 6; break; } 
             charBuf[cbPtr++] = c;
             break;  
         case 5:
@@ -528,11 +517,15 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             else reportLexError(charBuf);
             break;
         case 27:
+            if(!(c >= 'a' && c <= 'z')) { state = 28; break; }
             charBuf[cbPtr++] = c;
-            if(!(c >= 'a' && c <= 'z')) state = 28;
             break;
         case 28:
-            //search
+            T.type = TK_RUID;
+            inProgress = 0;
+            decForward(b);
+            decForward(b);
+            break;
         case 29:
             charBuf[cbPtr++] = c;
             if(c >= 'a' && c <= 'z') state = 33;
@@ -540,16 +533,20 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             else state = 34;
             break;
         case 30:
-            charBuf[cbPtr++] = c;
             if(c >= '2' && c <= '7') state = 31;
-            else if(!(c >= 'b' && c <= 'd')) state = 32;
+            else if(!(c >= 'b' && c <= 'd')) { state = 32; break; }
+            charBuf[cbPtr++] = c;
             break;
         case 31:
+            if(!(c >= '2' && c <= '7')) { state = 32; break; }
             charBuf[cbPtr++] = c;
-            if(!(c >= '2' && c <= '7')) state = 32;
             break;
         case 32:
-            // search
+            inProgress = 0;
+            decForward(b);
+            decForward(b);
+            T.type = TK_ID;
+            break;
         case 33:
             if (!(c >= 'a' && c <= 'z')) {
                 state = 34;
@@ -558,20 +555,15 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             charBuf[cbPtr++] = c;
             break;
         case 34:
-            // printf("got some string %s\n", charBuf);
             inProgress = 0;
             decForward(b);
             decForward(b);
             u64 tHash = hash(charBuf);
-            // printf("charBuf = %s\n", charBuf);
-            // printf("looking for hash %ld\n", hash(charBuf));
             int found = lookup(globalHashTable, HASHTABLESIZE, hash(charBuf));
-            //printf("%d\n", found);
             if (found && !strcmp(globalHashTable[tHash].Tptr->value.idPtr, charBuf)) {
-                // printf("%s and %s\n", globalHashTable[tHash].Tptr->value.idPtr, charBuf);
                 T.type = globalHashTable[tHash].Tptr->type;
             } else {
-                T.type = TK_ID; T.line = b->currentLine; T.value.idPtr = strdup(charBuf);
+                T.type = TK_FIELDID; T.line = b->currentLine; T.value.idPtr = strdup(charBuf);
                 insert(globalHashTable, HASHTABLESIZE, tHash, T);
             }
             break;

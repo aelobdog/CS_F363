@@ -1,3 +1,11 @@
+if(c7>=d2dc)
+then
+write(c7);
+else
+write (d2dc);
+endif
+
+
 % as
 % call
 % definetype
@@ -15,11 +23,11 @@
 % output
 % parameter
 % parameters
-_main _function1
+% _main _function1
 % read
 % real
 % record
-return
+%return
 % then
 % type
 % union
