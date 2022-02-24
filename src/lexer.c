@@ -9,18 +9,18 @@
 void removeComments(char *testcaseFile, char *cleanFile) {
     FILE* f = fopen(cleanFile,"w");
     FILE* g = fopen(testcaseFile,"r");
-    int c;
+    char c;
     while(!feof(g)) {
         c = fgetc(g);
         if (c == '%') {
             c = fgetc(g);
             while(c != '\n') {
-                g++;
+                if(feof(g)) return;
                 c = fgetc(g);
             }
+            continue;
         }
         fputc(c,f);
-        g++;
     }
     fclose(g);
     fclose(f);
@@ -32,17 +32,17 @@ void consolePrintNoComments(char* testcaseFile) {
     if (!g) { perror("FILE OPEN ERROR : "); }
 
     char c;
-    while(! feof(c = fgetc(g))) {
-        // if(c == '%') {
-        //     c = fgetc(g);
-        //     while(c != '\n') {
-        //         g++;
-        //         if(feof(g)) exit(0);
-        //         c = fgetc(g);
-        //     }
-        // }
+    while(! feof(g)) {
+        c = fgetc(g);
+        if(c == '%') {
+            c = fgetc(g);
+            while(c != '\n') {
+                if(feof(g)) return;
+                c = fgetc(g);
+            }
+            continue;
+        }
         printf("%c",c);
-        g++;
     }
     fclose(g);
 }
