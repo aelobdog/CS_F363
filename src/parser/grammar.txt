@@ -1,12 +1,12 @@
 program otherFunctions mainFunction
 mainFunction TK_MAIN stmts TK_END
-otherFunctions functionotherFunctions 
+otherFunctions function otherFunctions 
 otherFunctions eps
-functionTK_FUNID input_par output_par TK_SEM stmts TK_END
-input_parTK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
-output_parTK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
-output eps
-parameter_listdataType TK_ID remaining_list
+function TK_FUNID input_par output_par TK_SEM stmts TK_END
+input_par TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+output_par TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR 
+output_par eps
+parameter_list dataType TK_ID remaining_list
 dataType primitiveDatatype 
 dataType constructedDatatype
 primitiveDatatype TK_INT 
@@ -16,15 +16,15 @@ constructedDatatype TK_UNION TK_RUID
 constructedDatatype TK_RUID 
 remaining_list TK_COMMA parameter_list 
 remaining_list eps
-stmtstypeDefinitions declarations otherStmts returnStmt
+stmts typeDefinitions declarations otherStmts returnStmt
 typeDefinitions actualOrRedefined typeDefinitions 
-typeDefinistions eps
+typeDefinitions eps
 actualOrRedefined typeDefinition 
 actualOrRedefined definetypestmt 
 typeDefinition TK_RECORD TK_RUID fieldDefinitions TK_ENDRECORD 
 typeDefinition TK_UNION TK_RUID fieldDefinitions TK_ENDUNION
 fieldDefinitions fieldDefinition fieldDefinition moreFields
-fieldDefinition TK_TYPE fieldType TK_COLON TK_FIELDID TK_SEM
+fieldDefinition TK_TYPE fieldtype TK_COLON TK_FIELDID TK_SEM
 fieldtype primitiveDatatype 
 fieldtype TK_RUID
 moreFields fieldDefinition moreFields 
@@ -34,27 +34,27 @@ declaration eps
 declaration TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM
 global_or_not TK_COLON TK_GLOBAL
 global_or_not eps
-otherStmts stmtotherStmts 
+otherStmts stmt otherStmts 
 otherStmts eps
 stmt assignmentStmt 
 stmt iterativeStmt
 stmt conditionalStmt
 stmt ioStmt
 stmt funCallStmt
-assignmentStmt SingleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM
+assignmentStmt singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM
 singleOrRecId TK_ID 
 singleOrRecId constructedVariable 
 constructedVariable TK_ID oneExpansion moreExpansions
 oneExpansion TK_DOT TK_FIELDID 
 moreExpansions oneExpansion moreExpansions 
 moreExpansions eps
-funCallStmtoutputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM
+funCallStmt outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM
 outputParameters TK_SQL idList TK_SQR TK_ASSIGNOP 
 outputParameters eps
 inputParameters TK_SQL idList TK_SQR
 iterativeStmt TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE
 conditionalStmt TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart
-elsePart TK_ELSE stmtotherStmts TK_ENDIF 
+elsePart TK_ELSE stmt otherStmts TK_ENDIF 
 elsePart TK_ENDIF
 ioStmt TK_READ TK_OP var TK_CL TK_SEM 
 ioStmt TK_WRITE TK_OP var TK_CL TK_SEM
@@ -62,7 +62,7 @@ arithmeticExpression term expPrime
 expPrime lowPrecedenceOperators term expPrime 
 expPrime eps
 term factor termPrime
-termPrime highPrecedenceOperators factor termPrime
+termPrime highPrecedenceOperator factor termPrime
 termPrime eps
 factor TK_OP arithmeticExpression TK_CL 
 factor var
@@ -85,11 +85,11 @@ relationalOp TK_GT
 relationalOp TK_GE 
 relationalOp TK_NE
 returnStmt TK_RETURN optionalReturn TK_SEM
-optionalReturnTK_SQL idList TK_SQR 
+optionalReturn TK_SQL idList TK_SQR 
 optionalReturn eps
 idList TK_ID more_ids
 more_ids TK_COMMA idList 
 more_ids eps
-definetypestmtTK_DEFINETYPE A TK_RUID TK_AS TK_RUID
+definetypestmt TK_DEFINETYPE A TK_RUID TK_AS TK_RUID
 A TK_RECORD 
 A TK_UNION

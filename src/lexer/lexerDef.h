@@ -180,6 +180,7 @@ typedef enum termType {
     MORE_IDS,
     DEFINETYPESTMT,
     A,
+    EPS,
 
     TERMTYPESIZE
 } termType;

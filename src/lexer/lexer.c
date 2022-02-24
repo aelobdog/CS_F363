@@ -67,7 +67,7 @@ termValName termValNames[] = {
     { TK_NE, "TK_NE" },
     { PROGRAM, "program" },
     { MAINFUNCTION, "mainFunction" },
-    { OTHERFUNCTION, "otherFunction" },
+    { OTHERFUNCTION, "otherFunctions" },
     { FUNCTION, "function" },
     { INPUT_PAR, "input_par" },
     { OUTPUT_PAR, "output_par" },
@@ -118,6 +118,7 @@ termValName termValNames[] = {
     { MORE_IDS, "more_ids" },
     { DEFINETYPESTMT, "definetypestmt" },
     { A, "A" },
+    { EPS, "eps" },
 };
 
 void removeComments(char *testcaseFile, char *cleanFile) {

@@ -6,9 +6,10 @@
 
 void printRule(prodRule* r) {
     printf("%s -> ", getStringOf(r->nonTerminal));
-    for (int i = 0; i < r->termsInExpansion; i++) {
+    for (int i = 0; i < r->termsInExpansion -1; i++) {
         printf(" %s", getStringOf(r->expansion[i]));
     }
+    printf("\n");
 }
 
 int main() {
