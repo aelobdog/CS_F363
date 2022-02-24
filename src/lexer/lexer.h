@@ -16,10 +16,10 @@ token getToken(twinBuffer*, hashTableEntry*);
 void getTokenList(twinBuffer*, hashTableEntry*, token*);
 
 // tokenTypeName : get the name of the token type
-char* tokenTypeName(tokenType);
+char* tokenTypeName(termType);
 
 // tokenTypeValue : get the lexeme of the token type
-char* tokenTypeValue(tokenType);
+char* tokenTypeValue(termType);
 
 // prettyToken : pretty print token information to the console
 void prettyToken(token);
@@ -36,5 +36,10 @@ void removeComments(char*, char*);
 // consolePrintNoComments : print the comment free code to the console
 void consolePrintNoComments(char*);
 
+// getTypeOf : to get the termType for the given string
+termType getTypeOf(char*);
+
+// getStringOf : to get the string value corresponding to the termType
+char* getStringOf(termType type);
 
 #endif

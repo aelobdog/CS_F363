@@ -6,6 +6,120 @@
 #define MAX_LITERAL_LEN 32
 #define HASHTABLESIZE 512
 
+termValName termValNames[] = {
+    { TK_EOF, "TK_EOF" },
+    { TK_ASSIGNOP, "TK_ASSIGNOP" },
+    { TK_COMMENT, "TK_COMMENT" },
+    { TK_FIELDID, "TK_FIELDID" },
+    { TK_ID, "TK_ID" },
+    { TK_NUM, "TK_NUM" },
+    { TK_RNUM, "TK_RNUM" },
+    { TK_FUNID, "TK_FUNID" },
+    { TK_RUID, "TK_RUID" },
+    { TK_WITH, "TK_WITH" },
+    { TK_PARAMETERS, "TK_PARAMETERS" },
+    { TK_END, "TK_END" },
+    { TK_WHILE, "TK_WHILE" },
+    { TK_UNION, "TK_UNION" },
+    { TK_ENDUNION, "TK_ENDUNION" },
+    { TK_DEFINETYPE, "TK_DEFINETYPE" },
+    { TK_AS, "TK_AS" },
+    { TK_TYPE, "TK_TYPE" },
+    { TK_MAIN, "TK_MAIN" },
+    { TK_GLOBAL, "TK_GLOBAL" },
+    { TK_PARAMETER, "TK_PARAMETER" },
+    { TK_LIST, "TK_LIST" },
+    { TK_SQL, "TK_SQL" },
+    { TK_SQR, "TK_SQR" },
+    { TK_INPUT, "TK_INPUT" },
+    { TK_OUTPUT, "TK_OUTPUT" },
+    { TK_INT, "TK_INT" },
+    { TK_REAL, "TK_REAL" },
+    { TK_COMMA, "TK_COMMA" },
+    { TK_SEM, "TK_SEM" },
+    { TK_COLON, "TK_COLON" },
+    { TK_DOT, "TK_DOT" },
+    { TK_ENDWHILE, "TK_ENDWHILE" },
+    { TK_OP, "TK_OP" },
+    { TK_CL, "TK_CL" },
+    { TK_IF, "TK_IF" },
+    { TK_THEN, "TK_THEN" },
+    { TK_ENDIF, "TK_ENDIF" },
+    { TK_READ, "TK_READ" },
+    { TK_WRITE, "TK_WRITE" },
+    { TK_RETURN, "TK_RETURN" },
+    { TK_PLUS, "TK_PLUS" },
+    { TK_MINUS, "TK_MINUS" },
+    { TK_MUL, "TK_MUL" },
+    { TK_DIV, "TK_DIV" },
+    { TK_CALL, "TK_CALL" },
+    { TK_RECORD, "TK_RECORD" },
+    { TK_ENDRECORD, "TK_ENDRECORD" },
+    { TK_ELSE, "TK_ELSE" },
+    { TK_AND, "TK_AND" },
+    { TK_OR, "TK_OR" },
+    { TK_NOT, "TK_NOT" },
+    { TK_LT, "TK_LT" },
+    { TK_LE, "TK_LE" },
+    { TK_EQ, "TK_EQ" },
+    { TK_GT, "TK_GT" },
+    { TK_GE, "TK_GE" },
+    { TK_NE, "TK_NE" },
+    { PROGRAM, "program" },
+    { MAINFUNCTION, "mainFunction" },
+    { OTHERFUNCTION, "otherFunction" },
+    { FUNCTION, "function" },
+    { INPUT_PAR, "input_par" },
+    { OUTPUT_PAR, "output_par" },
+    { PARAMETER_LIST, "parameter_list" },
+    { DATATYPE, "dataType" },
+    { PRIMITIVEDATATYPE, "primitiveDatatype" },
+    { CONSTRUCTEDDATATYPE, "constructedDatatype" },
+    { REMAINING_LIST, "remaining_list" },
+    { STMTS, "stmts" },
+    { TYPEDEFINITIONS, "typeDefinitions" },
+    { ACTUALORREDEFINED, "actualOrRedefined" },
+    { TYPEDEFINITION, "typeDefinition" },
+    { FIELDDEFINITIONS, "fieldDefinitions" },
+    { FIELDDEFINITION, "fieldDefinition" },
+    { FIELDTYPE, "fieldtype" },
+    { MOREFIELDS, "moreFields" },
+    { DECLARATIONS, "declarations" },
+    { DECLARATION, "declaration" },
+    { GLOBAL_OR_NOT, "global_or_not" },
+    { OTHERSTMTS, "otherStmts" },
+    { STMT, "stmt" },
+    { ASSIGNMENTSTMT, "assignmentStmt" },
+    { SINGLEORRECID, "singleOrRecId" },
+    { CONSTRUCTEDVARIABLE, "constructedVariable" },
+    { ONEEXPANSION, "oneExpansion" },
+    { MOREEXPANSIONS, "moreExpansions" },
+    { FUNCALLSTMT, "funCallStmt" },
+    { OUTPUTPARAMETERS, "outputParameters" },
+    { INPUTPARAMETERS, "inputParameters" },
+    { ITERATIVESTMT, "iterativeStmt" },
+    { CONDITIONALSTMT, "conditionalStmt" },
+    { ELSEPART, "elsePart" },
+    { IOSTMT, "ioStmt" },
+    { ARITHMETICEXPRESSION, "arithmeticExpression" },
+    { EXPPRIME, "expPrime" },
+    { TERM, "term" },
+    { TERMPRIME, "termPrime" },
+    { FACTOR, "factor" },
+    { HIGHPRECEDENCEOPERATOR, "highPrecedenceOperator" },
+    { LOWPRECEDENCEOPERATORS, "lowPrecedenceOperators" },
+    { BOOLEANEXPRESSION, "booleanExpression" },
+    { VAR, "var" },
+    { LOGICALOP, "logicalOp" },
+    { RELATIONALOP, "relationalOp" },
+    { RETURNSTMT, "returnStmt" },
+    { OPTIONALRETURN, "optionalReturn" },
+    { IDLIST, "idList" },
+    { MORE_IDS, "more_ids" },
+    { DEFINETYPESTMT, "definetypestmt" },
+    { A, "A" },
+};
+
 void removeComments(char *testcaseFile, char *cleanFile) {
     FILE* f = fopen(cleanFile,"w");
     FILE* g = fopen(testcaseFile,"r");
@@ -102,7 +216,7 @@ void insert(hashTableEntry* ht, u64 size, u64 hash, token T) {
     iter->hash = hash;
 }
 
-void InsertInGlobalHashTable(char* name, tokenType type, hashTableEntry* globalHashTable) {
+void InsertInGlobalHashTable(char* name, termType type, hashTableEntry* globalHashTable) {
     u64 tHash = hash(name);
     token T;
     T.line = 0; T.type = type; T.value.idPtr = strdup(name);
@@ -204,7 +318,7 @@ void decForward(twinBuffer *b) {
     }
 }
 
-char* tokenTypeName(tokenType type) {
+char* tokenTypeName(termType type) {
     char* string;
     switch(type) {
     case TK_EOF: string = "TK_EOF"; break;
@@ -266,11 +380,10 @@ char* tokenTypeName(tokenType type) {
     case TK_GE: string = "TK_GE"; break;
     case TK_NE: string = "TK_NE"; break;
     }
-
     return string;
 }
 
-char* tokenTypeValue(tokenType type) {
+char* tokenTypeValue(termType type) {
     char* string;
     switch(type) {
     case TK_ASSIGNOP: string = "<---"; break;
@@ -327,6 +440,25 @@ char* tokenTypeValue(tokenType type) {
     }
 
     return string;
+}
+
+termType getTypeOf(char* termString) {
+    for (int i = 0; i < TERMTYPESIZE; i++) {
+        if (!strcmp(termString, termValNames[i].tVal)) return termValNames[i].tType;
+    }
+    printf("type of what?\n");
+    // change this to something else ?
+    exit(1);
+}
+
+char* getStringOf(termType type) {
+    // switch to binary search ?
+    for (int i = 0; i < TERMTYPESIZE; i++) {
+        if (type == termValNames[i].tType) return termValNames[i].tVal;
+    }
+    printf("type of what?\n");
+    // change this to something else ?
+    exit(1);
 }
 
 void prettyHeading() {
