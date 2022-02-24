@@ -13,10 +13,13 @@ FILE* loadBuffer(char*, FILE*, int*);
 token getToken(twinBuffer*, hashTableEntry*);
 
 // getTokenList : extracts and writes the list of tokens from the source file
-void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token* tokenList);
+void getTokenList(twinBuffer*, hashTableEntry*, token*);
 
 // tokenTypeName : get the name of the token type
 char* tokenTypeName(tokenType);
+
+// tokenTypeValue : get the lexeme of the token type
+char* tokenTypeValue(tokenType);
 
 // prettyToken : pretty print token information to the console
 void prettyToken(token);

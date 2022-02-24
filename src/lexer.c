@@ -270,6 +270,65 @@ char* tokenTypeName(tokenType type) {
     return string;
 }
 
+char* tokenTypeValue(tokenType type) {
+    char* string;
+    switch(type) {
+    case TK_ASSIGNOP: string = "<---"; break;
+    case TK_WITH: string = "with"; break;
+    case TK_PARAMETERS: string = "parameters"; break;
+    case TK_END: string = "end"; break;
+    case TK_WHILE: string = "while"; break;
+    case TK_UNION: string = "union"; break;
+    case TK_ENDUNION: string = "endunion"; break;
+    case TK_DEFINETYPE: string = "definetype"; break;
+    case TK_AS: string = "as"; break;
+    case TK_TYPE: string = "type"; break;
+    case TK_MAIN: string = "_main"; break;
+    case TK_GLOBAL: string = "global"; break;
+    case TK_PARAMETER: string = "parameter"; break;
+    case TK_LIST: string = "list"; break;
+    case TK_SQL: string = "["; break;
+    case TK_SQR: string = "]"; break;
+    case TK_INPUT: string = "input"; break;
+    case TK_OUTPUT: string = "output"; break;
+    case TK_INT: string = "int"; break;
+    case TK_REAL: string = "real"; break;
+    case TK_COMMA: string = ";"; break;
+    case TK_SEM: string = ";"; break;
+    case TK_COLON: string = ":"; break;
+    case TK_DOT: string = "dot"; break;
+    case TK_ENDWHILE: string = "endwhile"; break;
+    case TK_OP: string = "("; break;
+    case TK_CL: string = ")"; break;
+    case TK_IF: string = "if"; break;
+    case TK_THEN: string = "then"; break;
+    case TK_ENDIF: string = "endif"; break;
+    case TK_READ: string = "read"; break;
+    case TK_WRITE: string = "write"; break;
+    case TK_RETURN: string = "return"; break;
+    case TK_PLUS: string = "+"; break;
+    case TK_MINUS: string = "-"; break;
+    case TK_MUL: string = "*"; break;
+    case TK_DIV: string = "/"; break;
+    case TK_CALL: string = "call"; break;
+    case TK_RECORD: string = "record"; break;
+    case TK_ENDRECORD: string = "endrecord"; break;
+    case TK_ELSE: string = "else"; break;
+    case TK_AND: string = "&&&"; break;
+    case TK_OR: string = "@@@"; break;
+    case TK_NOT: string = "~"; break;
+    case TK_LT: string = "<"; break;
+    case TK_LE: string = "<="; break;
+    case TK_EQ: string = "="; break;
+    case TK_GT: string = ">"; break;
+    case TK_GE: string = ">="; break;
+    case TK_NE: string = "!="; break;
+    default: string = ""; break;
+    }
+
+    return string;
+}
+
 void prettyHeading() {
    printf("\n%20s\t%13s\t%5s\n", "type", "value", "line");
    printf("%20s\t%13s\t%5s\n", "----", "-----", "----");
@@ -281,7 +340,7 @@ void prettyToken(token T) {
         case TK_NUM:  printf("%13ld\t", T.value.num); break;
         case TK_RNUM: printf("%13.2lf\t", T.value.rnum); break;
         case TK_ID: case TK_RUID: case TK_FUNID: printf("%13s\t", T.value.idPtr); break;
-        default: printf("%13s\t", tokenTypeName(T.type)); break;
+        default: printf("%13s\t", tokenTypeValue(T.type)); break;
     }
     printf("%5ld\n", T.line);
 }
@@ -381,7 +440,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
                 case '\r':
                 case '\t': state = 60; break;
 
-                default: printf("here\n"); state = 100; break;
+                default: state = 1000; break; // state 1000 doesnt exist so this makes the lexing process stop
             }
             break;
 
