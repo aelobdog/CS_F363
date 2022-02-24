@@ -12,6 +12,9 @@ FILE* loadBuffer(char*, FILE*, int*);
 // getToken : extract a token from the input stream
 token getToken(twinBuffer*, hashTableEntry*);
 
+// getTokenList : extracts and writes the list of tokens from the source file
+void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token* tokenList);
+
 // tokenTypeName : get the name of the token type
 char* tokenTypeName(tokenType);
 
@@ -29,5 +32,6 @@ void removeComments(char*, char*);
 
 // consolePrintNoComments : print the comment free code to the console
 void consolePrintNoComments(char*);
+
 
 #endif

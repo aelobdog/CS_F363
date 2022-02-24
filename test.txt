@@ -4,33 +4,3 @@ write(c7);
 else
 write (d2dc);
 endif
-
-
-% as
-% call
-% definetype
-% else
-% end
-% endif
-% endrecord
-% endunion
-% endwhile
-% global
-% if
-% input
-% int
-% list
-% output
-% parameter
-% parameters
-% _main _function1
-% read
-% real
-% record
-%return
-% then
-% type
-% union
-% while
-% with
-% write

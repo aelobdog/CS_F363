@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "lexer.h"
+#include "src/lexer.h"
+#include "src/lexerDef.h"
 
 int main() {
     int choice;
@@ -8,6 +9,7 @@ int main() {
     hashTableEntry globalHashTable[HASHTABLESIZE];
     twinBuffer b;
     FILE* source;
+    token tokenList[2500];
     int eof;
 
     choice = 100;
@@ -44,16 +46,15 @@ int main() {
                 b.lexemeBegin = b.lbBuf;
                 b.currentLine = 1;
 
-                token T;
                 initGlobalHashTable(globalHashTable);
                 prettyHeading();
-                do {
-                    T = getToken(&b, globalHashTable);
-                    prettyToken(T);
-                } while (T.type != TK_EOF);
+                getTokenList(&b, globalHashTable, tokenList);
+
+                for (int i=0; tokenList[i].type != TK_EOF; i++) prettyToken(tokenList[i]);
                 break;
 
             case 3: break;
         }
     }
+    return 0;
 }

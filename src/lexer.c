@@ -176,6 +176,7 @@ void reportLexError(char* tokenName) {
 
 FILE* loadBuffer(char* buffer, FILE* source, int *eof) {
     fread(buffer, 4096, 1, source);
+    buffer[strlen(buffer)] = '\0';
     *eof = feof(source);
     if (*eof) *eof = 1;
     return source;
@@ -279,8 +280,8 @@ void prettyToken(token T) {
     switch (T.type){
         case TK_NUM:  printf("%13ld\t", T.value.num); break;
         case TK_RNUM: printf("%13.2lf\t", T.value.rnum); break;
-        
-        default: printf("%13s\t", T.value.idPtr); break;
+        case TK_ID: case TK_RUID: case TK_FUNID: printf("%13s\t", T.value.idPtr); break;
+        default: printf("%13s\t", tokenTypeName(T.type)); break;
     }
     printf("%5ld\n", T.line);
 }
@@ -380,7 +381,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
                 case '\r':
                 case '\t': state = 60; break;
 
-                default: exit(0);
+                default: printf("here\n"); state = 100; break;
             }
             break;
 
@@ -725,7 +726,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             break;
 
         default:
-            reportLexError("unreachable state reached !");
+            // reportLexError("unreachable state reached !");
             T.type = TK_EOF;
             return T;
         }
@@ -734,4 +735,14 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     T.line = b->currentLine;
     setTokenValue(&T, charBuf, cbPtr);
     return T;
+}
+
+void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenList[]) {
+   token T;
+   int i = 0;
+   do {
+      T = getToken(b, globalHashTable);
+      tokenList[i] = T;
+      i++;
+   } while (T.type != TK_EOF && i < 2500);
 }
