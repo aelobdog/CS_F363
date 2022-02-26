@@ -7,7 +7,7 @@
 #define HASHTABLESIZE 512
 
 termValName termValNames[] = {
-    { TK_EOF, "TK_EOF" },
+    // { TK_EOF, "TK_EOF" },
     { TK_ASSIGNOP, "TK_ASSIGNOP" },
     { TK_COMMENT, "TK_COMMENT" },
     { TK_FIELDID, "TK_FIELDID" },
@@ -119,6 +119,7 @@ termValName termValNames[] = {
     { DEFINETYPESTMT, "definetypestmt" },
     { A, "A" },
     { EPS, "eps" },
+    { DOLLAR, "DOLLAR"}
 };
 
 void removeComments(char *testcaseFile, char *cleanFile) {
@@ -322,7 +323,7 @@ void decForward(twinBuffer *b) {
 char* tokenTypeName(termType type) {
     char* string;
     switch(type) {
-    case TK_EOF: string = "TK_EOF"; break;
+    // case TK_EOF: string = "TK_EOF"; break;
     case TK_ASSIGNOP: string = "TK_ASSIGNOP"; break;
     case TK_COMMENT: string = "TK_COMMENT"; break;
     case TK_FIELDID: string = "TK_FIELDID"; break;
@@ -380,6 +381,7 @@ char* tokenTypeName(termType type) {
     case TK_GT: string = "TK_GT"; break;
     case TK_GE: string = "TK_GE"; break;
     case TK_NE: string = "TK_NE"; break;
+    case DOLLAR: string = "DOLLAR"; break;
     }
     return string;
 }
@@ -437,6 +439,7 @@ char* tokenTypeValue(termType type) {
     case TK_GT: string = ">"; break;
     case TK_GE: string = ">="; break;
     case TK_NE: string = "!="; break;
+    case DOLLAR: string = "$"; break;
     default: string = ""; break;
     }
 
@@ -447,17 +450,19 @@ termType getTypeOf(char* termString) {
     for (int i = 0; i < TERMTYPESIZE; i++) {
         if (!strcmp(termString, termValNames[i].tVal)) return termValNames[i].tType;
     }
-    printf("type of what?\n");
+    printf("type of what (%s)?\n", termString);
     // change this to something else ?
     exit(1);
 }
 
 char* getStringOf(termType type) {
+    if (type == DOLLAR) return "DOLLAR";
+
     // switch to binary search ?
     for (int i = 0; i < TERMTYPESIZE; i++) {
         if (type == termValNames[i].tType) return termValNames[i].tVal;
     }
-    printf("type of what?\n");
+    printf("string for what?(%d)\n", type);
     // change this to something else ?
     exit(1);
 }
@@ -919,7 +924,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
 
         default:
             // reportLexError("unreachable state reached !");
-            T.type = TK_EOF;
+            T.type = DOLLAR;
             return T;
         }
     }
@@ -929,6 +934,8 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     return T;
 }
 
+token TOK_DOLLAR;
+
 void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenList[]) {
    token T;
    int i = 0;
@@ -936,5 +943,11 @@ void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenLis
       T = getToken(b, globalHashTable);
       tokenList[i] = T;
       i++;
-   } while (T.type != TK_EOF && i < 2500);
+   } while (T.type != DOLLAR && i < 2500);
+
+//     TOK_DOLLAR.type = DOLLAR;
+//     TOK_DOLLAR.line = 0;
+//     TOK_DOLLAR.value.idPtr = "DOLLAR";
+
+//    tokenList[i] = TOK_DOLLAR;
 }

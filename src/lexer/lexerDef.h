@@ -67,7 +67,7 @@ typedef uint64_t u64;
 // } tokenType;
 
 typedef enum termType {
-    TK_EOF,
+    // TK_EOF,
     TK_ASSIGNOP,
     TK_COMMENT,
     TK_FIELDID,
@@ -181,8 +181,9 @@ typedef enum termType {
     DEFINETYPESTMT,
     A,
     EPS,
-
-    TERMTYPESIZE
+    
+    TERMTYPESIZE,
+    DOLLAR // to mark the end of the token stream
 } termType;
 
 typedef struct termValName {

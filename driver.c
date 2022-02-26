@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "src/lexer.h"
-#include "src/lexerDef.h"
+#include "src/lexer/lexer.h"
+#include "src/lexer/lexerDef.h"
 
 int main() {
     int choice;
@@ -50,7 +50,9 @@ int main() {
                 prettyHeading();
                 getTokenList(&b, globalHashTable, tokenList);
 
-                for (int i=0; tokenList[i].type != TK_EOF; i++) prettyToken(tokenList[i]);
+                int i;
+                for (i=0; tokenList[i].type != DOLLAR; i++) prettyToken(tokenList[i]);
+                prettyToken(tokenList[i]);
                 break;
 
             case 3: break;

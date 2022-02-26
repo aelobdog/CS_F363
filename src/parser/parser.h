@@ -3,5 +3,9 @@
 #include "parserDef.h"
 
 gram readGram();
+void computeFirsts(gram*, ffSets*);
+void computeFollows(gram*, ffSets*);
+int follow(termType, ffSets*, int, gram*);
+int first(termType, ffSets*, int, gram*);
 
 #endif
