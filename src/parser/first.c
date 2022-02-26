@@ -13,26 +13,24 @@ gram readGram() {
     FILE* f = fopen("src/parser/grammar.txt", "r");
     if (!f) perror("GRAMMAR FILE ERROR :");
 
-    while (fscanf(f, "%s%c", buf, &c) == 2) {
-        // printf("%s\n",buf);
-        if (getTypeOf(buf) != TK_EOF) {
-            if (termnum) {
-                g.rules[rulenum].expansion[termnum-1] = getTypeOf(buf);
-            } else {
-                g.rules[rulenum].nonTerminal= getTypeOf(buf);
-            }
-            termnum++;
-        }
-        if (c == '\n') {
-            g.rules[rulenum].termsInExpansion = termnum;
-            termnum = 0;
-            rulenum++;
+    while (fscanf(f, "%s", buf) == 1) {
+       c = fgetc(f);
+       if (termnum) {
+          g.rules[rulenum].expansion[termnum-1] = getTypeOf(buf);
+       } else {
+          g.rules[rulenum].nonTerminal= getTypeOf(buf);
+       }
+       termnum++;
+       if (c == '\n') {
+          // printf("--> newline in rule for %s\n", getStringOf(g.rules[rulenum].nonTerminal));
+          g.rules[rulenum].termsInExpansion = termnum;
+          termnum = 0;
+          rulenum++;
         }
     }
     g.rules[rulenum].expansion[termnum-1] = getTypeOf(buf);
     //printf("%s\n",buf);
-
-    g.numberOfRules = rulenum+1;
+    g.numberOfRules = rulenum;
     fclose(f);
     return g;
 }
