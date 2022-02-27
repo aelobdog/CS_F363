@@ -6,6 +6,8 @@
 
 // #include "lexerDef.h"
 
+// TODO: memset grammar too ?
+
 void printRule(prodRule* r) {
    printf("%s ->", getStringOf(r->nonTerminal));
    for (int i = 0; i < r->termsInExpansion -1; i++) {
@@ -58,6 +60,7 @@ void computeFollows(gram *g, ffSets *ff) {
    int k;
    ff->sets[0].follow[0] = DOLLAR; // hardcoding the follow if start symbol "program" to $
    ff->sets[0].numFollow = 1;
+   ff->sets[0].hasDollar = 1;
    for (k = PROGRAM+1; k < TERMTYPESIZE - 1; k++) {
       // printf("< ----- computing follow of %s\n", getStringOf(k));
       follow(k, ff, k-PROGRAM, g);
@@ -73,7 +76,7 @@ void computeFollows(gram *g, ffSets *ff) {
       for (int j=0; j < fd->numFollow; j++) {
          if(mf->first[i] == fd->follow[j] || mf->first[i] == EPS) { add = 0; break; } 
       }
-      if (add) fd->follow[fd->numFollow++] = mf->first[i];
+      if (add) fd->follow[fd->numFollow++] = mf->first[i]; // not performing dollar inclusion
    }
 
    for (int i = 0; i < fds->numFollow; i++) {
@@ -81,7 +84,7 @@ void computeFollows(gram *g, ffSets *ff) {
       for (int j=0; j < fd->numFollow; j++) {
          if(fds->follow[i] == fd->follow[j]) { add = 0; break; } 
       }
-      if (add) fd->follow[fd->numFollow++] = fds->follow[i];
+      if (add) fd->follow[fd->numFollow++] = fds->follow[i]; // not performing dollar inclusion
    }
 }
 
@@ -121,7 +124,10 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
             for (int t = 0; t < handleB->numFollow; t++) {
                if (handleA->follow[r] == handleB->follow[t]) { add = 0; break; }
             }
-            if (add) handleB->follow[handleB->numFollow ++] = handleA->follow[r];
+            if (add) {
+               handleB->follow[handleB->numFollow ++] = handleA->follow[r];
+               if (handleA->follow[r] == DOLLAR) handleB->hasDollar = 1;
+            }
          }
       } else {
          // if 'b' is not epsilon, that means we must check the first sets of all the elements in
@@ -136,7 +142,7 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
 
             // if the term in the expansion is a terminal, we simply add it to the follow set and
             // stop processing the current rule.
-            if (g->rules[i].expansion[r] < 58) {
+            if (g->rules[i].expansion[r] < PROGRAM) {
                int add = 1;
                for (int s = 0; s < handleB->numFollow; s++) {
                   if (handleB->follow[s] == g->rules[i].expansion[r]) { add = 0; break; }
@@ -172,75 +178,24 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
                   for (int t = 0; t < handleB->numFollow; t++) {
                      if (handleA->follow[d] == handleB->follow[t]) { add = 0; break; }
                   }
-                  if (add) handleB->follow[handleB->numFollow ++] = handleA->follow[d];
+                  if (add) {
+                     handleB->follow[handleB->numFollow ++] = handleA->follow[d];
+                     if (handleA->follow[r] == DOLLAR) handleB->hasDollar = 1;
+                  }
                }
             }
          }
       }
    }
 }
-//    firstAndFollow* ff = &(fS->sets[index]); // the set that is to be filled with the follow terms
-//    int gotTerminal = 0;
-// 
-//    for (int i = 0; i < g->numberOfRules; i++) { // iterates over all the rules
-//       gotTerminal = 0;
-//       for (int j = 0; j < g->rules[i].termsInExpansion; j++) {
-//          if (nt == g->rules[i].expansion[j]) { // found the non terminal on the rhs of the rule
-//             int k = 0;
-//             for (k = j + 1; k < g->rules[i].termsInExpansion; k++) { // iterate through the terms in the expansion to the right of the non-terminal
-// 
-//                if (g->rules[i].expansion[k] < 58) { // found terminal, add it to follow set if it doesn't already exist in the follow
-//                   int add = 1;
-//                   for (int p = 0; p < ff->numFollow; p++) {
-//                      if (ff->follow[p] == g->rules[i].expansion[k]) { add = 0; break; }
-//                   }
-//                   if (add) ff->follow[ff->numFollow++] = g->rules[i].expansion[k];
-//                   gotTerminal = 1;
-//                   break;
-//                }
-//                else { // found non-terminal
-//                   firstAndFollow* other = &fS->sets[g->rules[i].expansion[k] - PROGRAM];
-//                   for (int q = 0; q < other->numFirst; q++) { // iterate over the non terminal's first set
-//                      int add = 1;
-//                      for (int m = 0; m < ff->numFollow; m++) { // iterate over all the elements in the follow set of the current non terminal
-//                         if (ff->follow[m] == other->first[q] || other->first[q] == EPS /*||  other->first[q] == TK_EOF check! */) { add = 0; break; } // check if term in first already exists in follow, and add it if not
-//                      }
-//                      if (add && other->first[q] != EPS) ff->follow[ff->numFollow++] = other->first[q];
-//                   }
-//                   if (! other->hasEps) break; // if the current non terminal's first set does not have a epsilon, then stop follow calculation for that rule
-//                }
-// 
-//             } // k reached the end of expansion
-// 
-//             if (! gotTerminal) {
-//                k = k - 1;
-//                if (g->rules[i].nonTerminal != g->rules[i].expansion[k]) { // if the non terminal whose follow we wish to calculate appears as the last term in a rule's expansion, we skip this part
-//                   firstAndFollow* lhs = &fS->sets[g->rules[i].nonTerminal - PROGRAM];
-//                   if ((k == g->rules[i].termsInExpansion - 1 && nt == g->rules[i].expansion[k]) || fS->sets[g->rules[i].expansion[k] - PROGRAM].hasEps) {
-//                      for (int q = 0; q < lhs->numFollow; q++) { // iterate over the LHS non terminal's follow set
-//                         int add = 1;
-//                         printf("%s >>> %s\n", getStringOf(lhs->nonTerminal), getStringOf(lhs->follow[q]));
-//                         for (int m = 0; m < ff->numFollow; m++) { // iterate over all the elements in the follow set of the current non terminal
-//                            if (ff->follow[m] == lhs->follow[q]) { add = 0; break; } // check if term in first already exists in follow, and add it if not
-//                         }
-//                         if (add) ff->follow[ff->numFollow++] = lhs->follow[q];
-//                         printf("%s > %s", getStringOf(ff->nonTerminal), getStringOf(ff->follow[ff->numFollow-1]));
-//                      }
-//                   }
-//                }
-//             }
-//          }
-//       }
-//    }
 
-// return value = hasEps
-int first(termType nt, ffSets* fS, int index, gram *g) {
+int first(termType nt, ffSets* fS, int index, gram* g) {
    firstAndFollow* ff = &(fS->sets[index]);
    for (int i = 0; i < g->numberOfRules; i++) {
 
       if (g->rules[i].nonTerminal != nt) continue; // skip the rule if it is not for the non-terminal we want first for
 
-      if (g->rules[i].expansion[0] < 58) { // 58 is the enum value of the first non-terminal (ref. src/lexer/lexerDef.h)
+      if (g->rules[i].expansion[0] < PROGRAM) { // PROGRAM is the enum value of the first non-terminal (ref. src/lexer/lexerDef.h)
          int add = 1;
          for (int k = 0; k < ff->numFirst; k++) {
             if (ff->first[k] == g->rules[i].expansion[0]) { add = 0; break; }
@@ -265,7 +220,7 @@ int first(termType nt, ffSets* fS, int index, gram *g) {
          for (int j = 0; j < g->rules[i].termsInExpansion; j++) {
 
             // if it is a non terminal
-            if (g->rules[i].expansion[j] >= 58) {
+            if (g->rules[i].expansion[j] >= PROGRAM) {
                if (g->rules[i].expansion[j] != nt) {
                   if (! fS->sets[g->rules[i].expansion[j] - PROGRAM].computedFirst) {
                      localHasEps = first(g->rules[i].expansion[j], fS, g->rules[i].expansion[j] - PROGRAM, g);
@@ -325,6 +280,76 @@ int first(termType nt, ffSets* fS, int index, gram *g) {
    return ff->hasEps;
 }
 
+// assumes that first and follow sets have been computed
+void populateParseTable(parseTable* pTable, gram* g, ffSets* fS) {
+   for(int i = 0; i < g->numberOfRules; i++) { // iterate over all the rules
+      for(int j = 0; j < g->rules[i].termsInExpansion; j++) { // iterate over all the terms in the expansion of the rule selected
+         if(g->rules[i].expansion[j] < PROGRAM) { // if the current term on the rhs is a terminal, add a rule for it directly in the pTable
+            // printf("in rule of ( %s ) rhs symbol ( %s )\n", getStringOf(g->rules[i].nonTerminal), getStringOf(g->rules[i].expansion[j]));
+            pTable->entry [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]] = g->rules[i];
+            pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]] = 1;
+            // printf("%d, %d, %d\n", g->rules[i].nonTerminal - PROGRAM, g->rules[i].expansion[j], pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]]);
+            break; // break outof term loop, go to next next rule
+         }
+         
+         else { // if current term on the rhs is a non-terminal, we look at its first and process further
+            if (g->rules[i].expansion[j] == EPS) {
+               firstAndFollow* handleA = &(fS->sets[g->rules[i].nonTerminal - PROGRAM]);
+               for(int m = 0; m < handleA->numFollow; m++) {
+                  if (handleA->follow[m] != DOLLAR) {
+                     pTable->entry [g->rules[i].nonTerminal - PROGRAM][handleA->follow[m]] = g->rules[i];
+                     pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][handleA->follow[m]] = 1;
+                  }
+               }
+               if (fS->sets[g->rules[i].nonTerminal - PROGRAM].hasDollar) {
+                  // second arg is PROGRAM because we want to set the entry for '$' whose index is assumes to be 1 more than the index for the last terminal
+                  pTable->entry[g->rules[i].nonTerminal - PROGRAM][PROGRAM] = g->rules[i];
+                  pTable->hasRule[g->rules[i].nonTerminal - PROGRAM][PROGRAM] = 1;
+               }
+            }
+            
+            firstAndFollow* handleT = &(fS->sets[g->rules[i].expansion[j] - PROGRAM]); // get a handle to the first and follow sets of the non terminal
+            for (int k = 0; k < handleT->numFirst; k++) { // adding the rule to all the terminal entries in the first set
+               if (handleT->first[k] != EPS) {
+                  pTable->entry [g->rules[i].nonTerminal - PROGRAM][handleT->first[k]] = g->rules[i];
+                  pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][handleT->first[k]] = 1;
+               }
+            }
+            if (! handleT->hasEps) break; // break outof term loop, go to next next rule
+
+            if (j == g->rules[i].termsInExpansion - 1) { // on the last term, and it has eps in its first
+               firstAndFollow* handleA = &(fS->sets[g->rules[i].nonTerminal - PROGRAM]);
+               for(int m = 0; m < handleA->numFollow; m++) {
+                  if (handleT->follow[m] != DOLLAR) {
+                     pTable->entry [g->rules[i].nonTerminal - PROGRAM][handleT->follow[m]] = g->rules[i];
+                     pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][handleT->follow[m]] = 1;
+                  }
+               }
+               
+               if (fS->sets[g->rules[i].nonTerminal - PROGRAM].hasDollar) {
+                  // second arg is PROGRAM because we want to set the entry for '$' whose index is assumes to be 1 more than the index for the last terminal
+                  pTable->entry[g->rules[i].nonTerminal - PROGRAM][PROGRAM] = g->rules[i];
+                  pTable->hasRule[g->rules[i].nonTerminal - PROGRAM][PROGRAM] = 1;
+               }
+            }
+         }
+      }
+    }
+
+   printf("printing table :\n    ");
+    for (int j = 0; j < PROGRAM+1; j++) printf("%2d ", j);
+    printf("\n");
+
+
+    for (int i = 0; i < TERMTYPESIZE - PROGRAM - 1; i++) {
+      printf("%2d> ", i+1);
+       for (int j = 0; j < PROGRAM+1; j++) {
+          printf("%2d ", pTable->hasRule[i][j]);
+       }
+       printf("\n");
+    }
+}
+
 int main() {
    // hash table stuff for the symbol table
    gram g = readGram();
@@ -349,14 +374,19 @@ int main() {
 
    // printf("\n\n-------------------------------\n\n");
 
-   for(int i=0;i<ff.numberOfFFS; i++) {
-      if (0 == ff.sets[i].numFollow) continue;
+   // for(int i=0;i<ff.numberOfFFS; i++) {
+   //    if (0 == ff.sets[i].numFollow) continue;
 
-      printf("%s =", getStringOf(ff.sets[i].nonTerminal));
-      for (int j=0; j<ff.sets[i].numFollow; j++) {
-         printf(" %s", getStringOf(ff.sets[i].follow[j]));
-      }
-      printf("\n");
-   }
+   //    printf("%s =", getStringOf(ff.sets[i].nonTerminal));
+   //    for (int j=0; j<ff.sets[i].numFollow; j++) {
+   //       printf(" %s", getStringOf(ff.sets[i].follow[j]));
+   //    }
+   //    printf("\n");
+   //    // printf("    -> hasDollar ? [ %s ]\n", (ff.sets[i].hasDollar ? "yes" : "no"));
+   // }
+
+   parseTable pTable;
+   memset(&pTable, 0, sizeof(pTable));
+   populateParseTable(&pTable, &g, &ff);
    return 0;
 }
