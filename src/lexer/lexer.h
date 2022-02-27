@@ -30,6 +30,8 @@ void prettyHeading();
 // initGlobalHashTable : to initialize the global hash table
 void initGlobalHashTable(hashTableEntry*);
 
+void initLexerDefaults(char*, FILE*, twinBuffer*, int*, hashTableEntry*, tokenList*);
+
 // removeComments : function to clean the file (removing all the comments)
 void removeComments(char*, char*);
 

@@ -1,5 +1,5 @@
-driver:
-	gcc -o bin/driver driver.c src/lexer/lexer.c -ggdb
+# driver:
+# 	gcc -o bin/driver driver.c src/lexer/lexer.c -ggdb
 
 parser:
-	gcc -o bin/parser src/parser/parser.c src/lexer/lexer.c -ggdb
+	gcc -o bin/parser src/lexer/lexer.c src/parser/parser.c -ggdb

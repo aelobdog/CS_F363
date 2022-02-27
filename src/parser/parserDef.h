@@ -5,6 +5,7 @@
 #include "../lexer/lexer.h"
 
 #define MAX_DISTINCT_NONTERMS 100
+#define MAX_STACK_SIZE 2500
 
 typedef struct {
     termType nonTerminal;
@@ -39,5 +40,10 @@ typedef struct parseTable {
     prodRule entry[TERMTYPESIZE - PROGRAM - 1][PROGRAM + 1];
     int hasRule[TERMTYPESIZE - PROGRAM - 1][PROGRAM + 1]; // using 'char' instead of 'int' to save memory
 } parseTable;
+
+typedef struct parseStack {
+    termType stack[MAX_STACK_SIZE];
+    int top;
+} parseStack;
 
 #endif

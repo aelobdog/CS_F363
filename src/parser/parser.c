@@ -336,57 +336,82 @@ void populateParseTable(parseTable* pTable, gram* g, ffSets* fS) {
       }
     }
 
-   printf("printing table :\n    ");
-    for (int j = 0; j < PROGRAM+1; j++) printf("%2d ", j);
-    printf("\n");
+   // printf("printing table :\n    ");
+   //  for (int j = 0; j < PROGRAM+1; j++) printf("%2d ", j);
+   //  printf("\n");
 
 
-    for (int i = 0; i < TERMTYPESIZE - PROGRAM - 1; i++) {
-      printf("%2d> ", i+1);
-       for (int j = 0; j < PROGRAM+1; j++) {
-          printf("%2d ", pTable->hasRule[i][j]);
-       }
-       printf("\n");
-    }
+   //  for (int i = 0; i < TERMTYPESIZE - PROGRAM - 1; i++) {
+   //    printf("%2d> ", i+1);
+   //     for (int j = 0; j < PROGRAM+1; j++) {
+   //        printf("%2d ", pTable->hasRule[i][j]);
+   //     }
+   //     printf("\n");
+   //  }
+}
+
+termType getStackTop(parseStack* pStack) {
+   // maybe do bounds checking?
+   return pStack->stack[pStack->top];
+}
+
+termType popStackTop(parseStack* pStack) {
+   pStack->top -= 1;
+   return pStack->stack[pStack->top + 1];
+}
+
+void pushStackTop(parseStack* pStack, termType term, parseTable* pTable, tokenList* tList) {
+   prodRule* rule = &pTable->entry[term - PROGRAM][tList->list[tList->current].type]; // get rule from parse table
+   pStack->top ++;
+   for (int i = rule->termsInExpansion - 1; i >= 0; i--) {
+      pStack->stack[pStack->top++] = rule->expansion[i];
+   }
+   pStack->top --;
+}
+
+void initStack(parseStack* pStack) {
+   pStack->top = 0;
+   pStack->stack[pStack->top++] = DOLLAR;
+   pStack->stack[pStack->top] = PROGRAM;
 }
 
 int main() {
-   // hash table stuff for the symbol table
-   gram g = readGram();
-   // for(int i=0;i<g.numberOfRules;i++) {
-   //     printRule(&(g.rules[i]));
-   // }
    ffSets ff;
-   memset(&ff, 0, sizeof(ffSets));
+   parseTable pTable;
+   parseStack pStack;
+   tokenList tList;
+   twinBuffer b;
+   FILE* source;
+   int eof;
+   hashTableEntry globalHashTable[HASHTABLESIZE];
+
+   memset(&pTable, 0, sizeof(pTable));
+   memset(&ff, 0, sizeof(ff));
+   memset(&pStack, 0, sizeof(pStack));
+   memset(&tList, 0, sizeof(tList));
+   
+   gram g = readGram();
    computeFirsts(&g, &ff);
    computeFollows(&g, &ff);
-
-   // printf("first and follow sets\n");
-   // for(int i=0;i<ff.numberOfFFS; i++) {
-   //    if (0 == ff.sets[i].numFirst) continue;
-
-   //    printf("%s =", getStringOf(ff.sets[i].nonTerminal));
-   //    for (int j=0; j<ff.sets[i].numFirst; j++) {
-   //       printf(" %s", getStringOf(ff.sets[i].first[j]));
-   //    }
-   //    printf("\n");
-   // }
-
-   // printf("\n\n-------------------------------\n\n");
-
-   // for(int i=0;i<ff.numberOfFFS; i++) {
-   //    if (0 == ff.sets[i].numFollow) continue;
-
-   //    printf("%s =", getStringOf(ff.sets[i].nonTerminal));
-   //    for (int j=0; j<ff.sets[i].numFollow; j++) {
-   //       printf(" %s", getStringOf(ff.sets[i].follow[j]));
-   //    }
-   //    printf("\n");
-   //    // printf("    -> hasDollar ? [ %s ]\n", (ff.sets[i].hasDollar ? "yes" : "no"));
-   // }
-
-   parseTable pTable;
-   memset(&pTable, 0, sizeof(pTable));
    populateParseTable(&pTable, &g, &ff);
+   initStack(&pStack);
+
+   initLexerDefaults("test.txt", source, &b, &eof, globalHashTable, &tList);
+
+   printf("\n\n\n");
+
+   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   printf("\n");
+
+   termType t;
+
+   t = popStackTop(&pStack);
+   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   printf("\n");
+
+   pushStackTop(&pStack, t, &pTable, &tList);
+   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   printf("\n");
+
    return 0;
 }

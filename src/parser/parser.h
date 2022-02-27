@@ -9,4 +9,10 @@ void follow(termType, ffSets*, int, gram*);
 int first(termType, ffSets*, int, gram*);
 void populateParseTable(parseTable*, gram*, ffSets*);
 
+void initStack(parseStack*);
+termType getStackTop(parseStack*);
+termType popStackTop(parseStack*);
+void pushStackTop(parseStack*, termType, parseTable*, tokenList*);
+
+
 #endif

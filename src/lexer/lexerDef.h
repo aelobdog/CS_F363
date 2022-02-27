@@ -4,6 +4,8 @@
 #include <stdint.h>
 typedef uint64_t u64;
 
+#define MAX_TOKENS 2500
+
 typedef enum termType {
     // TK_EOF,
     TK_ASSIGNOP,
@@ -141,6 +143,11 @@ typedef struct token {
     termType type;
     tokenValue value;
 } token;
+
+typedef struct tokenList {
+    token list[MAX_TOKENS];
+    int current;
+} tokenList;
 
 // twinBuffer
 typedef struct twinBuffer {

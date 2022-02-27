@@ -943,11 +943,26 @@ void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenLis
       T = getToken(b, globalHashTable);
       tokenList[i] = T;
       i++;
-   } while (T.type != DOLLAR && i < 2500);
+   } while (T.type != DOLLAR && i < MAX_TOKENS);
+}
 
-//     TOK_DOLLAR.type = DOLLAR;
-//     TOK_DOLLAR.line = 0;
-//     TOK_DOLLAR.value.idPtr = "DOLLAR";
+void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, hashTableEntry* globalHashTable, tokenList* tList) {
+    source = fopen(filename, "r");
+    if (!source) perror("FILE READ ERROR : ");
 
-//    tokenList[i] = TOK_DOLLAR;
+    source = loadBuffer(b->buffer1, source, eof);
+    if (! *eof) source = loadBuffer(b->buffer2, source, eof);
+
+    b->fBuf = b->buffer1;
+    b->lbBuf = b->buffer1;
+    b->forward = b->fBuf;
+    b->lexemeBegin = b->lbBuf;
+    b->currentLine = 1;
+
+    initGlobalHashTable(globalHashTable);
+    prettyHeading();
+    getTokenList(b, globalHashTable, tList->list);
+    int i;
+    for (i=0; tList->list[i].type != DOLLAR; i++) prettyToken(tList->list[i]);
+    prettyToken(tList->list[i]);
 }
