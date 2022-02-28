@@ -15,6 +15,8 @@ token getToken(twinBuffer*, hashTableEntry*);
 // getTokenList : extracts and writes the list of tokens from the source file
 void getTokenList(twinBuffer*, hashTableEntry*, token*);
 
+void getAndPrintTokenList(twinBuffer*, hashTableEntry*, token*);
+
 // tokenTypeName : get the name of the token type
 char* tokenTypeName(termType);
 

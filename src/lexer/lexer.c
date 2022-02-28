@@ -134,6 +134,7 @@ void removeComments(char *testcaseFile, char *cleanFile) {
                 if(feof(g)) return;
                 c = fgetc(g);
             }
+            fputc('\n',f);
             continue;
         }
         fputc(c,f);
@@ -156,6 +157,7 @@ void consolePrintNoComments(char* testcaseFile) {
                 if(feof(g)) return;
                 c = fgetc(g);
             }
+            printf("\n");
             continue;
         }
         printf("%c",c);
@@ -285,9 +287,10 @@ int isKeyword(token t) {
 
 #define isDigit(c) ((c>='0' && c<='9'))
 
-void reportLexError(char* tokenName) {
-    printf("LEX ERROR : Unknown Token `%s`\n", tokenName);
-    exit(1);
+void reportLexError(char* tokenName, u64 line) {
+    if (strlen(tokenName) == 1) printf("Line no %ld : Error: Unknown Symbol <%s>\n", line, tokenName);
+    else printf("Line no %ld : Error: Unknown Pattern <%s>\n", line, tokenName);
+    memset(tokenName, 0, MAX_LITERAL_LEN);
 }
 
 FILE* loadBuffer(char* buffer, FILE* source, int *eof) {
@@ -473,14 +476,14 @@ void prettyHeading() {
 }
 
 void prettyToken(token T) {
-    printf("%20s\t", tokenTypeName(T.type));
+    printf("Line no. %ld\t Lexeme ", T.line);
     switch (T.type){
-        case TK_NUM:  printf("%13ld\t", T.value.num); break;
-        case TK_RNUM: printf("%13.2lf\t", T.value.rnum); break;
-        case TK_ID: case TK_RUID: case TK_FUNID: case TK_FIELDID: printf("%13s\t", T.value.idPtr); break;
-        default: printf("%13s\t", tokenTypeValue(T.type)); break;
+        // case TK_NUM:  printf("%13ld\t", T.value.num); break;
+        // case TK_RNUM: printf("%13.2lf\t", T.value.rnum); break;
+        case TK_NUM: case TK_RNUM: case TK_ID: case TK_RUID: case TK_FUNID: case TK_FIELDID: printf("%s\t", T.value.idPtr); break;
+        default: printf("%s\t", tokenTypeValue(T.type)); break;
     }
-    printf("%5ld\n", T.line);
+    printf("Token %s\n", tokenTypeName(T.type));
 }
 
 void setTokenValue(token* T, char* charBuf, int cbPtr) {
@@ -502,13 +505,13 @@ void setTokenValue(token* T, char* charBuf, int cbPtr) {
         T->value.num = 0;
         break;
     
-    case TK_NUM:
-        sscanf(charBuf, "%ld", &(T->value.num));
-        break;
+    // case TK_NUM:
+    //     sscanf(charBuf, "%ld", &(T->value.num));
+    //     break;
 
-    case TK_RNUM:
-        sscanf(charBuf, "%lf", &(T->value.rnum));
-        break;
+    // case TK_RNUM:
+    //     sscanf(charBuf, "%lf", &(T->value.rnum));
+    //     break;
 
     default:
         T->value.idPtr = strdup(charBuf);
@@ -528,8 +531,10 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     inProgress = 1;
 
     while(inProgress) {
+        // if (cbPtr < 20) {
         c = *(b->forward);
         incForward(b);
+        // }
 
         // printf("c = %c, state = %d\n",c,state);
         // printf("on line : %ld\n", b->currentLine);
@@ -578,17 +583,17 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
                 case '\r':
                 case '\t': state = 60; break;
 
-                case 0: state = 1200; break;
+                case 0: state = 1200; break; // to deal with \0
 
-                default: printf("FOUND ILLEGAL TOKEN `%s` ON LINE %ld\n", charBuf, b->currentLine); state = 1000; exit(1); // reportLexError(charBuf); // state = 1000; continue; // state 1000 doesnt exist so this makes the lexing process stop
+                default: reportLexError(charBuf, b->currentLine); state = 0; cbPtr = 0; //  decForward(b);
             }
             break;
 
         case 1:
-            charBuf[cbPtr++] = c;
             if(c >= 'A' && c <= 'Z') state = 4;
             else if(c >= 'a' && c <= 'z') state = 2;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 2:
             if(c >= 'A' && c <= 'Z') state = 4;
@@ -601,7 +606,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             break;
         case 4:
             if(isDigit(c)) state = 5;
-            else if(!(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) { state = 6; break; } 
+            else if(! ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) { state = 6; break; } 
             charBuf[cbPtr++] = c;
             break;  
         case 5:
@@ -619,20 +624,20 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             }
             break;
         case 7:
-            charBuf[cbPtr++] = c;
             if(c == '-') state = 8;
             else if (c == '=') state = 11;
             else state = 12;
+            charBuf[cbPtr++] = c;
             break;
         case 8:
-            charBuf[cbPtr++] = c;
             if(c == '-') state = 9;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 9:
-            charBuf[cbPtr++] = c;
             if(c == '-') state = 10;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 10:
             T.type = TK_ASSIGNOP;
@@ -651,9 +656,9 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 13:
-            charBuf[cbPtr++] = c;
             if (c == '=') state = 14;
             else state = 15;
+            charBuf[cbPtr++] = c;
             break;
         case 14:
             T.type = TK_GE;
@@ -667,30 +672,30 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 16: 
-            charBuf[cbPtr++] = c;
             if (c == '.') {
                 state = 17;
-                break;
+                // break;
             }
-            if (!isDigit(c)) {
+            else if (!isDigit(c)) {
                 state = 25;
                 break;
             }
+            charBuf[cbPtr++] = c;
             break;
         case 17:
-            charBuf[cbPtr++] = c;
             if (isDigit(c)) state = 18;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 18:
-            charBuf[cbPtr++] = c;
             if (isDigit(c)) state = 19;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 19:
-            charBuf[cbPtr++] = c;
             if (c == 'E') state = 21;
-            else state = 20;
+            else { state = 20; break; }
+            charBuf[cbPtr++] = c;
             break;
         case 20:
             T.type = TK_RNUM;
@@ -699,20 +704,20 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 21:
-            charBuf[cbPtr++] = c;
             if (c == '+' || c == '-') state = 22;
             else if (isDigit(c)) state = 23;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 22:
-            charBuf[cbPtr++] = c;
             if (isDigit(c)) state = 23;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 23:
-            charBuf[cbPtr++] = c;
             if (isDigit(c)) state = 24;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 24:
             T.type = TK_RNUM;
@@ -726,9 +731,9 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 26:
-            charBuf[cbPtr++] = c;
             if(c >= 'a' && c <= 'z') state = 27;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 27:
             if(!(c >= 'a' && c <= 'z')) { state = 28; break; }
@@ -741,24 +746,38 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 29:
-            charBuf[cbPtr++] = c;
             if(c >= 'a' && c <= 'z') state = 33;
             else if(c >= '2' && c <= '7') state = 30;
             else state = 34;
+            charBuf[cbPtr++] = c;
             break;
         case 30:
             if(c >= '2' && c <= '7') state = 31;
             else if(!(c >= 'b' && c <= 'd')) { state = 32; break; }
-            charBuf[cbPtr++] = c;
+
+            if (strlen(charBuf) < 20) charBuf[cbPtr++] = c;
+            else cbPtr++;
             break;
         case 31:
             if(!(c >= '2' && c <= '7')) { state = 32; break; }
-            charBuf[cbPtr++] = c;
+            
+            if (strlen(charBuf) < 20) charBuf[cbPtr++] = c;
+            else cbPtr++;
             break;
         case 32:
+            decForward(b);
+            decForward(b);
+            
+            if (cbPtr > 19) { 
+                printf("Line no %ld : Error : Variable Identifier is longer than the prescribed length of 20 characters.\n", b->currentLine);
+                state = 0; 
+                cbPtr = 0;
+                // decForward(b);
+                memset(charBuf, 0, MAX_LITERAL_LEN); 
+                continue; 
+            }
+            
             inProgress = 0;
-            decForward(b);
-            decForward(b);
             T.type = TK_ID;
             break;
         case 33:
@@ -769,9 +788,12 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             charBuf[cbPtr++] = c;
             break;
         case 34:
+            decForward(b);
+            decForward(b);
+            if (cbPtr > 19) { printf("Line no %ld : Error : Variable Identifier is longer than the prescribed length of 20 characters.\n", b->currentLine); state = 0; cbPtr = 0; memset(charBuf, 0, MAX_LITERAL_LEN); continue; }
+            
             inProgress = 0;
-            decForward(b);
-            decForward(b);
+
             u64 tHash = hash(charBuf);
             int found = lookup(globalHashTable, HASHTABLESIZE, hash(charBuf));
             if (found && !strcmp(globalHashTable[tHash].Tptr->value.idPtr, charBuf)) {
@@ -782,9 +804,9 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             }
             break;
         case 35: 
-            charBuf[cbPtr++] = c;
             if(c == '=') state = 36;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 36:
             T.type = TK_EQ;
@@ -792,9 +814,9 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 37:
-            charBuf[cbPtr++] = c;
             if(c == '=') state = 38;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 38:
             T.type = TK_NE;
@@ -807,14 +829,14 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 40:
-            charBuf[cbPtr++] = c;
             if(c == '&') state = 41;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 41:
-            charBuf[cbPtr++] = c;
             if(c == '&') state = 42;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 42:
             T.type = TK_AND;
@@ -822,14 +844,14 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
             decForward(b);
             break;
         case 43:
-            charBuf[cbPtr++] = c;
             if (c == '@') state = 44;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 44:
-            charBuf[cbPtr++] = c;
             if (c == '@') state = 45;
-            else reportLexError(charBuf);
+            else { reportLexError(charBuf, b->currentLine); state = 0; decForward(b); cbPtr = 0; continue; }
+            charBuf[cbPtr++] = c;
             break;
         case 45:
             T.type = TK_OR;
@@ -948,6 +970,18 @@ void getTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenLis
    } while (T.type != DOLLAR && i < MAX_TOKENS);
 }
 
+void getAndPrintTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token tokenList[]) {
+   token T;
+   int i = 0;
+   do {
+      T = getToken(b, globalHashTable);
+      if (T.type == DOLLAR) break;
+      prettyToken(T);
+      tokenList[i] = T;
+      i++;
+   } while (T.type != DOLLAR && i < MAX_TOKENS);
+}
+
 void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, hashTableEntry* globalHashTable, tokenList* tList) {
     source = fopen(filename, "r");
     if (!source) perror("FILE READ ERROR : ");
@@ -963,8 +997,8 @@ void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, ha
 
     initGlobalHashTable(globalHashTable);
     getTokenList(b, globalHashTable, tList->list);
-    prettyHeading();
-    int i;
-    for (i=0; tList->list[i].type != DOLLAR; i++) prettyToken(tList->list[i]);
-    prettyToken(tList->list[i]);
+    // prettyHeading();
+    // int i;
+    // for (i=0; tList->list[i].type != DOLLAR; i++) prettyToken(tList->list[i]);
+    // prettyToken(tList->list[i]);
 }

@@ -414,7 +414,7 @@ u64 getCurrentTokenLine(tokenList* tList) {
 
 void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule) {
    for (int i = 0; i < rule->termsInExpansion; i++) {
-      node->children[i] = buildParseTreeNodeFromToken(rule->expansion[i]);
+      // node->children[i] = buildParseTreeNodeFromToken(rule->expansion[i]);
    }
 }
 
@@ -482,7 +482,7 @@ parseTreeNode* buildParseTreeNodeFromToken(token *T) {
 }
 
 void initParseTree(parseTreeNode *root) {
-   root = buildParseTreeNodeFromT(PROGRAM);
+   root = buildParseTreeNodeFromType(PROGRAM);
 }
 
 int main() {
@@ -529,9 +529,9 @@ int main() {
    populateParseTable(&pTable, &g, &ff);
    initStack(&pStack);
 
-   initLexerDefaults("test.txt", source, &b, &eof, globalHashTable, &tList);
+   initLexerDefaults("t3.txt", source, &b, &eof, globalHashTable, &tList);
 
-   printf("\n\n\n");
+   // printf("\n\n\n");
 
    predictiveParse(&pStack, &pTable, &tList);
 

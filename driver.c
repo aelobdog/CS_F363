@@ -4,7 +4,7 @@
 
 int main() {
     int choice;
-    char filename[32];
+    char filename[32] = "t1.txt";
 
     hashTableEntry globalHashTable[HASHTABLESIZE];
     twinBuffer b;
@@ -22,7 +22,8 @@ int main() {
 
     while(choice) {
         printf("Choice : ");
-        scanf("%d", &choice);
+        // scanf("%d", &choice);
+        choice =2 ;
         switch (choice) {
             case 0: break;
 
@@ -32,8 +33,8 @@ int main() {
                 consolePrintNoComments(filename);
                 break;
             case 2:
-                printf("source file : ");
-                scanf("%s", filename);
+                // printf("source file : ");
+                // scanf("%s", filename)
                 source = fopen(filename, "r");
                 if (!source) perror("FILE READ ERROR : ");
 
@@ -47,13 +48,13 @@ int main() {
                 b.currentLine = 1;
 
                 initGlobalHashTable(globalHashTable);
-                prettyHeading();
-                getTokenList(&b, globalHashTable, tokenList);
+                getAndPrintTokenList(&b, globalHashTable, tokenList);
+                return 0;
 
-                int i;
-                for (i=0; tokenList[i].type != DOLLAR; i++) prettyToken(tokenList[i]);
-                prettyToken(tokenList[i]);
-                break;
+                // int i;
+                // for (i=0; tokenList[i].type != DOLLAR; i++) prettyToken(tokenList[i]);
+                // prettyToken(tokenList[i]);
+                // break;
 
             case 3: break;
         }

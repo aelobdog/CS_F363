@@ -51,8 +51,8 @@ typedef struct parseTreeNode {
     token nodeInfo;
     short numChildren;
     short leftMost;
-    parseTreeNode* parent;
-    parseTreeNode* children[MAX_CHILDREN];
+    struct parseTreeNode* parent;
+    struct parseTreeNode* children[MAX_CHILDREN];
 } parseTreeNode;
 
 #endif
