@@ -3,14 +3,21 @@
 #include "parserDef.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // #include "lexerDef.h"
 
 // TODO: memset grammar too ?
 
+// print an error and exit(1)
+void reportParseError(char* tokenName) {
+    printf("LEX ERROR : Unknown Token `%s`\n", tokenName);
+    exit(1);
+}
+
 void printRule(prodRule* r) {
    printf("%s ->", getStringOf(r->nonTerminal));
-   for (int i = 0; i < r->termsInExpansion -1; i++) {
+   for (int i = 0; i < r->termsInExpansion; i++) {
       printf(" %s", getStringOf(r->expansion[i]));
    }
    printf("\n");
@@ -40,7 +47,7 @@ gram readGram() {
       }
    }
    g.rules[rulenum].expansion[termnum-1] = getTypeOf(buf);
-   g.numberOfRules = rulenum + 1;
+   g.numberOfRules = rulenum;
    fclose(f);
    return g;
 }
@@ -62,7 +69,6 @@ void computeFollows(gram *g, ffSets *ff) {
    ff->sets[0].numFollow = 1;
    ff->sets[0].hasDollar = 1;
    for (k = PROGRAM+1; k < TERMTYPESIZE - 1; k++) {
-      // printf("< ----- computing follow of %s\n", getStringOf(k));
       follow(k, ff, k-PROGRAM, g);
    }
 
@@ -102,22 +108,33 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
       // at the end of this loop, j is the index of 'nt' in the expansion.
       for (j = 0; j < g->rules[i].termsInExpansion && g->rules[i].expansion[j] != nt; j++);
       j++; // now j is the index of the first term to the right of 'nt'.
-      
-      // if (nt == MAINFUNCTION) {
-      //    printf("\n-----------\nin rule (expansions = %d) \n", g->rules[i].termsInExpansion);
-      //    printRule(&g->rules[i]);
-      //    printf("j is %d for nt ( %s )\n", j, getStringOf(nt));
-      // }
+
+      if (j > g->rules[i].termsInExpansion) continue;
       
       // at this point, there are only two possibilities. Either 'b' is epsilon, or it is not
       if (j == g->rules[i].termsInExpansion) {
-         // printf("in here for %s\n", getStringOf(g->rules[i].nonTerminal));
          // for rules of the form A -> aB we must add all the elements of the follow set of A
          // to the follow set of B. To do so, we first get a handle to the first and follow
          // sets of A.
+
+         // if (nt == SINGLEORRECID) printf("%s\n", getStringOf(g->rules[i].nonTerminal));
+
          firstAndFollow* handleA = &(fS->sets[ g->rules[i].nonTerminal - PROGRAM ]);
          // now we can iterate over all the elements of the follow set of A
+
+         if (handleA->numFollow == 0) {
+            // printf("if : %s : ", getStringOf(g->rules[i].nonTerminal));
+            follow(g->rules[i].nonTerminal, fS, g->rules[i].nonTerminal - PROGRAM, g);
+            // for (int l = 0; l < handleA->numFollow; l++) {
+            //    printf("%s ", getStringOf(handleA->follow[l]));
+            // }
+            // printf("\n");
+         }
+
          for (int r = 0; r < handleA->numFollow; r++) {
+            // if(nt == SINGLEORRECID) {
+            //    printf("%s\n",getStringOf(handleA->follow[r]));
+            // }
             // we need to also make sure not to add duplicates to the follow of B so we iterate
             // through B's follow to make sure that the element we with to add is not in it already.
             int add = 1;
@@ -135,11 +152,6 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
          //    1) a terminal
          //    2) a non terminal whose first set does not have epsilon
          for (int r = j; r < g->rules[i].termsInExpansion; r++) {
-            
-            // if (nt == INPUT_PAR) {
-            //    printf("%s is %s\n", getStringOf(g->rules[i].expansion[r]), (g->rules[i].expansion[r] < 58) ? "terminal" : "non terminal");
-            // }
-
             // if the term in the expansion is a terminal, we simply add it to the follow set and
             // stop processing the current rule.
             if (g->rules[i].expansion[r] < PROGRAM) {
@@ -153,6 +165,7 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
 
             // we then get a handle to the first set of the term under consideration
             firstAndFollow* handleT = &(fS->sets[ g->rules[i].expansion[r] - PROGRAM ]);
+
             // we can now iterate over all its elements and add them to B's follow set if they are
             // not already present in it.
             for (int k = 0; k < handleT->numFirst; k++) {
@@ -170,6 +183,17 @@ void follow(termType nt, ffSets* fS, int index, gram *g) {
             // we must add all elemets of follow of A to follow of B
             if (r == g->rules[i].termsInExpansion - 1) {
                firstAndFollow* handleA = &(fS->sets[ g->rules[i].nonTerminal - PROGRAM ]);
+
+               
+               if (handleA->numFollow == 0) {
+                  // printf("else : %s : ", getStringOf(g->rules[i].nonTerminal));
+                  follow(g->rules[i].nonTerminal, fS, g->rules[i].nonTerminal - PROGRAM, g);
+                  // for (int l = 0; l < handleA->numFollow; l++) {
+                  //    printf("%s ", getStringOf(handleA->follow[l]));
+                  // }
+                  // printf("\n");
+               }
+
                // now we can iterate over all the elements of the follow set of A
                for (int d = 0; d < handleA->numFollow; d++) {
                   // we need to also make sure not to add duplicates to the follow of B so we iterate
@@ -287,6 +311,7 @@ void populateParseTable(parseTable* pTable, gram* g, ffSets* fS) {
          if(g->rules[i].expansion[j] < PROGRAM) { // if the current term on the rhs is a terminal, add a rule for it directly in the pTable
             // printf("in rule of ( %s ) rhs symbol ( %s )\n", getStringOf(g->rules[i].nonTerminal), getStringOf(g->rules[i].expansion[j]));
             pTable->entry [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]] = g->rules[i];
+            // if (g->rules[i].nonTerminal == SINGLEORRECID) { printf("single or rec id : ");printRule(&(pTable->entry [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]]));printf("\n"); }
             pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]] = 1;
             // printf("%d, %d, %d\n", g->rules[i].nonTerminal - PROGRAM, g->rules[i].expansion[j], pTable->hasRule [g->rules[i].nonTerminal - PROGRAM][g->rules[i].expansion[j]]);
             break; // break outof term loop, go to next next rule
@@ -337,17 +362,18 @@ void populateParseTable(parseTable* pTable, gram* g, ffSets* fS) {
     }
 
    // printf("printing table :\n    ");
-   //  for (int j = 0; j < PROGRAM+1; j++) printf("%2d ", j);
-   //  printf("\n");
+   // for (int j = 0; j < PROGRAM+1; j++) printf("%2d ", j);
+   // printf("\n");
 
 
-   //  for (int i = 0; i < TERMTYPESIZE - PROGRAM - 1; i++) {
-   //    printf("%2d> ", i+1);
-   //     for (int j = 0; j < PROGRAM+1; j++) {
-   //        printf("%2d ", pTable->hasRule[i][j]);
-   //     }
-   //     printf("\n");
-   //  }
+   // for (int i = PROGRAM; i < TERMTYPESIZE - 1; i++) {
+   //    printf("%2d> ", i);
+   //    printf("%s\n", getStringOf(i));
+   //    for (int j = 0; j < PROGRAM+1; j++) {
+   //        printf("%2d ", pTable->hasRule[i-PROGRAM][j]);
+   //    }
+   //    printf("\n\n");
+   // }
 }
 
 termType getStackTop(parseStack* pStack) {
@@ -360,19 +386,103 @@ termType popStackTop(parseStack* pStack) {
    return pStack->stack[pStack->top + 1];
 }
 
-void pushStackTop(parseStack* pStack, termType term, parseTable* pTable, tokenList* tList) {
+prodRule* pushStackTop(parseStack* pStack, termType term, parseTable* pTable, tokenList* tList) {
    prodRule* rule = &pTable->entry[term - PROGRAM][tList->list[tList->current].type]; // get rule from parse table
+   // if (term == SINGLEORRECID) { printf("sorid "); printRule(rule); printf("\n");}
    pStack->top ++;
    for (int i = rule->termsInExpansion - 1; i >= 0; i--) {
       pStack->stack[pStack->top++] = rule->expansion[i];
    }
    pStack->top --;
+   return rule;
 }
 
 void initStack(parseStack* pStack) {
    pStack->top = 0;
    pStack->stack[pStack->top++] = DOLLAR;
    pStack->stack[pStack->top] = PROGRAM;
+}
+
+// TODO: change to macro ?
+termType getCurrentTokenType(tokenList* tList) {
+   return tList->list[tList->current].type;
+}
+
+u64 getCurrentTokenLine(tokenList* tList) {
+   return tList->list[tList->current].line;
+}
+
+void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule) {
+   for (int i = 0; i < rule->termsInExpansion; i++) {
+      node->children[i] = buildParseTreeNodeFromToken(rule->expansion[i]);
+   }
+}
+
+parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList* tList) {
+   termType a = getCurrentTokenType(tList);
+   termType X = getStackTop(pStack);
+   parseTreeNode *currentNode;
+   parseTreeNode *root;
+   
+   initParseTree(root);
+   currentNode = root;
+
+   // for (int i=0; tList->list[i].type != DOLLAR; i++) printf(" %s", getStringOf(tList->list[i].type));
+   // printf("\n");
+
+   while(X != DOLLAR) {
+      // printf("TOKENS : %s\n", getStringOf(getCurrentTokenType(tList)));
+      // for (int i=tList->current; tList->list[i].type != DOLLAR; i++) printf(" %s", getStringOf(tList->list[i].type));
+      // printf(" STACK : ");
+      // for (int i=pStack->top; i>=0; i--) printf(" %s", getStringOf(pStack->stack[i]));
+      // printf("\n");
+      
+      if(X == a) {
+         termType p = popStackTop(pStack);
+         // printf("Popping (%s)\n", getStringOf(p));
+         tList->current ++;
+         a = getCurrentTokenType(tList);
+      }
+      else if (X < PROGRAM) {
+         printf("ERROR (PARSER): EXPECTED `%s` ON LINE %ld, GOT `%s`\n", tokenTypeValue(X), getCurrentTokenLine(tList), tokenTypeValue(getCurrentTokenType(tList)));
+         exit(1); // for now
+      }
+      else if (! pTable->hasRule[X-PROGRAM][a]) {
+         printf("ERROR (PARSER) : RULE FOR (%s) DOES NOT EXIST IN PARSE TABLE FOR TERMINAL (%s) : LINE (%ld)\n", getStringOf(X), getStringOf(a), getCurrentTokenLine(tList));
+         exit(1); // for now
+      }
+      else {
+         termType p = popStackTop(pStack);
+         // printf(" => %s", getStringOf(p));
+         prodRule* rule = pushStackTop(pStack, p, pTable, tList);
+         buildTreeFromRuleAt(currentNode, rule);
+      }
+
+      while(getStackTop(pStack) == EPS) popStackTop(pStack);
+      X = getStackTop(pStack);
+   }
+}
+
+parseTreeNode* buildParseTreeNodeFromType(termType T) {
+   parseTreeNode* node = (parseTreeNode*) malloc (sizeof(parseTreeNode));
+   node->nodeInfo.line = 0;
+   node->nodeInfo.type = T;
+   node->nodeInfo.value.num = 0;
+   node->numChildren = 0;
+   node->leftMost = 0;
+}
+
+parseTreeNode* buildParseTreeNodeFromToken(token *T) {
+   parseTreeNode* node = (parseTreeNode*) malloc (sizeof(parseTreeNode));
+   node->nodeInfo.line = T->line;
+   node->nodeInfo.type = T->type;
+   node->nodeInfo.value = T->value;
+   node->numChildren = 0;
+   node->leftMost = 0;
+}
+
+void initParseTree(parseTreeNode *root) {
+   root = buildParseTreeNodeFromT(PROGRAM);
 }
 
 int main() {
@@ -391,8 +501,31 @@ int main() {
    memset(&tList, 0, sizeof(tList));
    
    gram g = readGram();
+   // for (int i=0; i<g.numberOfRules; i++) printRule(&g.rules[i]);
+   // printf("--------------\n\n");
+
    computeFirsts(&g, &ff);
+
+   // printf("First Sets\n");
+   // for (int i=0; i < ff.numberOfFFS; i++) {
+   //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
+   //    for (int j = 0; j < ff.sets[i].numFirst; j++) {
+   //       printf("%s ", getStringOf(ff.sets[i].first[j]));
+   //    }
+   //    printf("}\n");
+   // }
+
    computeFollows(&g, &ff);
+
+   // printf("Follow Sets\n");
+   // for (int i=0; i < ff.numberOfFFS; i++) {
+   //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
+   //    for (int j = 0; j < ff.sets[i].numFollow; j++) {
+   //       printf("%s ", getStringOf(ff.sets[i].follow[j]));
+   //    }
+   //    printf("}\n");
+   // }
+
    populateParseTable(&pTable, &g, &ff);
    initStack(&pStack);
 
@@ -400,18 +533,22 @@ int main() {
 
    printf("\n\n\n");
 
-   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   printf("\n");
+   predictiveParse(&pStack, &pTable, &tList);
 
-   termType t;
+   printf("DONE (stack length = %d, stack top : %s)", pStack.top, pStack.top ? getStringOf(getStackTop(&pStack)) : "(null)");
 
-   t = popStackTop(&pStack);
-   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   printf("\n");
+   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   // printf("\n");
 
-   pushStackTop(&pStack, t, &pTable, &tList);
-   for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   printf("\n");
+   // termType t;
+
+   // t = popStackTop(&pStack);
+   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   // printf("\n");
+
+   // pushStackTop(&pStack, t, &pTable, &tList);
+   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+   // printf("\n");
 
    return 0;
 }

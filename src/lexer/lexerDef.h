@@ -144,6 +144,8 @@ typedef struct token {
     tokenValue value;
 } token;
 
+// struct containing a list of (MAX_TOKEN) tokens, and an index that holds the 'current'
+// element being accessed (default = 0)
 typedef struct tokenList {
     token list[MAX_TOKENS];
     int current;

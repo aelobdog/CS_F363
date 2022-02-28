@@ -409,7 +409,7 @@ char* tokenTypeValue(termType type) {
     case TK_OUTPUT: string = "output"; break;
     case TK_INT: string = "int"; break;
     case TK_REAL: string = "real"; break;
-    case TK_COMMA: string = ";"; break;
+    case TK_COMMA: string = ","; break;
     case TK_SEM: string = ";"; break;
     case TK_COLON: string = ":"; break;
     case TK_DOT: string = "dot"; break;
@@ -477,7 +477,7 @@ void prettyToken(token T) {
     switch (T.type){
         case TK_NUM:  printf("%13ld\t", T.value.num); break;
         case TK_RNUM: printf("%13.2lf\t", T.value.rnum); break;
-        case TK_ID: case TK_RUID: case TK_FUNID: printf("%13s\t", T.value.idPtr); break;
+        case TK_ID: case TK_RUID: case TK_FUNID: case TK_FIELDID: printf("%13s\t", T.value.idPtr); break;
         default: printf("%13s\t", tokenTypeValue(T.type)); break;
     }
     printf("%5ld\n", T.line);
@@ -578,7 +578,9 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
                 case '\r':
                 case '\t': state = 60; break;
 
-                default: state = 1000; break; // state 1000 doesnt exist so this makes the lexing process stop
+                case 0: state = 1200; break;
+
+                default: printf("FOUND ILLEGAL TOKEN `%s` ON LINE %ld\n", charBuf, b->currentLine); state = 1000; exit(1); // reportLexError(charBuf); // state = 1000; continue; // state 1000 doesnt exist so this makes the lexing process stop
             }
             break;
 
@@ -960,8 +962,8 @@ void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, ha
     b->currentLine = 1;
 
     initGlobalHashTable(globalHashTable);
-    prettyHeading();
     getTokenList(b, globalHashTable, tList->list);
+    prettyHeading();
     int i;
     for (i=0; tList->list[i].type != DOLLAR; i++) prettyToken(tList->list[i]);
     prettyToken(tList->list[i]);

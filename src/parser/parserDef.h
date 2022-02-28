@@ -6,6 +6,7 @@
 
 #define MAX_DISTINCT_NONTERMS 100
 #define MAX_STACK_SIZE 2500
+#define MAX_CHILDREN 10
 
 typedef struct {
     termType nonTerminal;
@@ -45,5 +46,13 @@ typedef struct parseStack {
     termType stack[MAX_STACK_SIZE];
     int top;
 } parseStack;
+
+typedef struct parseTreeNode {
+    token nodeInfo;
+    short numChildren;
+    short leftMost;
+    parseTreeNode* parent;
+    parseTreeNode* children[MAX_CHILDREN];
+} parseTreeNode;
 
 #endif

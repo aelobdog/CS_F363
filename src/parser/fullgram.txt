@@ -42,9 +42,9 @@ stmt conditionalStmt
 stmt ioStmt
 stmt funCallStmt
 assignmentStmt singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM
-singleOrRecId TK_ID
-singleOrRecId constructedVariable
-constructedVariable TK_ID oneExpansion moreExpansions
+singleOrRecId TK_ID constructedVariable
+constructedVariable oneExpansion moreExpansions
+constructedVariable eps
 oneExpansion TK_DOT TK_FIELDID
 moreExpansions oneExpansion moreExpansions
 moreExpansions eps
