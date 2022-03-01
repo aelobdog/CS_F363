@@ -1,4 +1,8 @@
 _main
-    type int : b22;
-    return;
+    if((~(c4bbb == 0)) && (c4bbb > 78.56)) 
+	then
+		c6<--- d4cbcd5677/c4bbb
+	else
+		write(c4bbb);
+	endif
 end

@@ -418,7 +418,49 @@ void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule) {
    }
 }
 
-parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList* tList) {
+void recoverFromError(termType nT, ffSets* fS, parseStack* pStack, tokenList* tList) {
+   firstAndFollow* handleNT = &(fS->sets[nT - PROGRAM]);
+   //int min = (handleNT->numFirst < handleNT->numFollow) ? handleNT->numFirst : handleNT->numFollow;
+   int i;
+   // for (i = 0; i < min; i++, tList->current++) {
+   //    if (tList->list[tList->current].type == handleNT->first[i]) {
+   //       return;
+   //    } else if (tList->list[tList->current].type == handleNT->follow[i]) {
+   //       popStackTop(pStack);
+   //       return;
+   //    }
+   // }
+
+   for (; tList->list[tList->current].type != DOLLAR; tList->current++) {
+      for (i = 0; i < handleNT->numFollow; i++) {
+         if (tList->list[tList->current].type == handleNT->follow[i]) {
+            // printf("here with %s and %s\n", getStringOf(nT), getStringOf(popStackTop(pStack)));
+            // printf("top of stack : %s\n", getStringOf(getStackTop(pStack)));
+            popStackTop(pStack);
+            return;
+         }
+      }
+   }
+
+   printf("exiting earlier than expected\n");
+   exit(1);
+
+   // int j = i;
+   // for (; i < handleNT->numFirst; i++, tList->current++) {
+   //    if (tList->list[tList->current].type == handleNT->first[i]) {
+   //       return;
+   //    }
+   //}
+   
+   // for (; j < handleNT->numFollow; j++, tList->current++) {
+   //    if (tList->list[tList->current].type == handleNT->follow[j]) {
+   //       popStackTop(pStack);
+   //       return;
+   //    }
+   // }
+}
+
+parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList* tList, ffSets* fS) {
    termType a = getCurrentTokenType(tList);
    termType X = getStackTop(pStack);
    parseTreeNode *currentNode;
@@ -431,11 +473,19 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
    // printf("\n");
 
    while(X != DOLLAR) {
-      // printf("TOKENS : %s\n", getStringOf(getCurrentTokenType(tList)));
-      // for (int i=tList->current; tList->list[i].type != DOLLAR; i++) printf(" %s", getStringOf(tList->list[i].type));
+      // if (X == TERMPRIME) {
+      //    printf("termprime got : %s (rule for %s)\n", (pTable->hasRule[X-PROGRAM][a] ? "yes" : "no"), getStringOf(a));
+      //    printRule(&pTable->entry[X-PROGRAM][a]);
+      // }
+
+      // printf("TOKENS :" );
+      // int i;
+      // for (i=tList->current; tList->list[i].type != DOLLAR; i++) printf(" %s", getStringOf(tList->list[i].type));
+      // printf(" %s", getStringOf(tList->list[i].type));
+      // printf("\n");
       // printf(" STACK : ");
       // for (int i=pStack->top; i>=0; i--) printf(" %s", getStringOf(pStack->stack[i]));
-      // printf("\n");
+      // printf("\n\n");
       
       if(X == a) {
          termType p = popStackTop(pStack);
@@ -444,12 +494,32 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
          a = getCurrentTokenType(tList);
       }
       else if (X < PROGRAM) {
-         printf("ERROR (PARSER): EXPECTED `%s` ON LINE %ld, GOT `%s`\n", tokenTypeValue(X), getCurrentTokenLine(tList), tokenTypeValue(getCurrentTokenType(tList)));
-         exit(1); // for now
+         printf("Line no %ld : Error: The token %s for lexeme %s does not match with the expected token %s\n", 
+            getCurrentTokenLine(tList), 
+            getStringOf(getCurrentTokenType(tList)),
+            tokenTypeValue(getCurrentTokenType(tList)),
+            getStringOf(X));
+         popStackTop(pStack);
+         // tList->current++;
+         // a = getCurrentTokenType(tList);
+         // X = getStackTop(pStack);
+         // continue;
       }
       else if (! pTable->hasRule[X-PROGRAM][a]) {
-         printf("ERROR (PARSER) : RULE FOR (%s) DOES NOT EXIST IN PARSE TABLE FOR TERMINAL (%s) : LINE (%ld)\n", getStringOf(X), getStringOf(a), getCurrentTokenLine(tList));
-         exit(1); // for now
+         char value[32];
+         switch(getCurrentTokenType(tList)) {
+            case TK_ID: case TK_RUID: case TK_FUNID: strcpy(value, tList->list[tList->current].value.idPtr); break;
+            default: strcpy(value, tokenTypeValue(getCurrentTokenType(tList)));
+         }
+         printf("Line no %ld : Error: Invalid token %s encountered with value %s stack top %s\n", 
+            getCurrentTokenLine(tList), 
+            getStringOf(getCurrentTokenType(tList)),
+            value,
+            getStringOf(X));
+         recoverFromError(X, fS, pStack, tList);
+         a = getCurrentTokenType(tList);
+         // X = getStackTop(pStack);
+         // continue;
       }
       else {
          termType p = popStackTop(pStack);
@@ -529,11 +599,11 @@ int main() {
    populateParseTable(&pTable, &g, &ff);
    initStack(&pStack);
 
-   initLexerDefaults("t3.txt", source, &b, &eof, globalHashTable, &tList);
+   initLexerDefaults("t5.txt", source, &b, &eof, globalHashTable, &tList);
 
    // printf("\n\n\n");
 
-   predictiveParse(&pStack, &pTable, &tList);
+   predictiveParse(&pStack, &pTable, &tList, &ff);
 
    printf("DONE (stack length = %d, stack top : %s)", pStack.top, pStack.top ? getStringOf(getStackTop(&pStack)) : "(null)");
 

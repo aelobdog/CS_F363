@@ -24,7 +24,10 @@ termType popStackTop(parseStack*);
 prodRule* pushStackTop(parseStack*, termType, parseTable*, tokenList*);
 
 //parses the given code using a stack and tokenstream by looking at rules from the parseTable
-parseTreeNode* predictiveParse(parseStack*, parseTable*, tokenList*);
+parseTreeNode* predictiveParse(parseStack*, parseTable*, tokenList*, ffSets*);
+
+//recover from errors by checking the syn set
+void recoverFromError(termType, ffSets*, parseStack*, tokenList*);
 
 void initParseTree(parseTreeNode*);
 
