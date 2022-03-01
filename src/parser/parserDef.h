@@ -44,6 +44,7 @@ typedef struct parseTable {
 
 typedef struct parseStack {
     termType stack[MAX_STACK_SIZE];
+    int depth[MAX_STACK_SIZE];
     int top;
 } parseStack;
 
@@ -55,6 +56,7 @@ typedef union tokenOrTokenType {
 typedef struct parseTreeNode {
     tokenOrTokenType tokenInfo;
     int isTerminal;
+    int depthOfNode;
     struct parseTreeNode* parent;
     struct parseTreeNode* rightSibling;
     struct parseTreeNode* leftChild;
