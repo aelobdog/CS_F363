@@ -29,13 +29,17 @@ parseTreeNode* predictiveParse(parseStack*, parseTable*, tokenList*, ffSets*);
 //recover from errors by checking the syn set
 void recoverFromError(termType, ffSets*, parseStack*, tokenList*);
 
-void initParseTree(parseTreeNode*);
+parseTreeNode* initParseTree();
 
 parseTreeNode* buildParseTreeNodeFromType(termType);
 
 parseTreeNode* buildParseTreeNodeFromToken(token*);
 
-void buildTreeFromRuleAt(parseTreeNode*, prodRule*);
+void buildTreeFromRuleAt(parseTreeNode*, prodRule*, token*);
+
+void printParseTreeNode(parseTreeNode*);
+
+void printParseTree(parseTreeNode*, int);
 
 
 

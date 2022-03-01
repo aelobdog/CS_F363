@@ -47,12 +47,17 @@ typedef struct parseStack {
     int top;
 } parseStack;
 
+typedef union tokenOrTokenType {
+    token* tokenPtr;
+    termType tokenType;
+} tokenOrTokenType;
+
 typedef struct parseTreeNode {
-    token nodeInfo;
-    short numChildren;
-    short leftMost;
+    tokenOrTokenType tokenInfo;
+    int isTerminal;
     struct parseTreeNode* parent;
-    struct parseTreeNode* children[MAX_CHILDREN];
+    struct parseTreeNode* rightSibling;
+    struct parseTreeNode* leftChild;
 } parseTreeNode;
 
 #endif

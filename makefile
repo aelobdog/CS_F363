@@ -4,7 +4,5 @@ driver:
 parser:
 	gcc -o bin/parser src/lexer/lexer.c src/parser/parser.c -ggdb
 
-runp:
-	reset; make parser; ./bin/parser
-rund:
-	reset; make driver; ./bin/driver
+ptree:
+	gcc -o bin/ptree src/lexer/lexer.c src/parser/parser.c parsetree.c -ggdb

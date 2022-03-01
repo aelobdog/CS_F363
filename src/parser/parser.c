@@ -412,12 +412,6 @@ u64 getCurrentTokenLine(tokenList* tList) {
    return tList->list[tList->current].line;
 }
 
-void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule) {
-   for (int i = 0; i < rule->termsInExpansion; i++) {
-      // node->children[i] = buildParseTreeNodeFromToken(rule->expansion[i]);
-   }
-}
-
 void recoverFromError(termType nT, ffSets* fS, parseStack* pStack, tokenList* tList) {
    firstAndFollow* handleNT = &(fS->sets[nT - PROGRAM]);
    //int min = (handleNT->numFirst < handleNT->numFollow) ? handleNT->numFirst : handleNT->numFollow;
@@ -525,7 +519,7 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
          termType p = popStackTop(pStack);
          // printf(" => %s", getStringOf(p));
          prodRule* rule = pushStackTop(pStack, p, pTable, tList);
-         buildTreeFromRuleAt(currentNode, rule);
+         buildTreeFromRuleAt(currentNode, rule, &(tList->list[tList->current]));
       }
 
       while(getStackTop(pStack) == EPS) popStackTop(pStack);
@@ -535,90 +529,135 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
 
 parseTreeNode* buildParseTreeNodeFromType(termType T) {
    parseTreeNode* node = (parseTreeNode*) malloc (sizeof(parseTreeNode));
-   node->nodeInfo.line = 0;
-   node->nodeInfo.type = T;
-   node->nodeInfo.value.num = 0;
-   node->numChildren = 0;
-   node->leftMost = 0;
+   if (!node) printf("Big F\n");
+   node->tokenInfo.tokenType = T;
+   node->parent = NULL;
+   node->leftChild = NULL;
+   node->rightSibling = NULL;
+   node->isTerminal = 0;
+   return node;
 }
 
 parseTreeNode* buildParseTreeNodeFromToken(token *T) {
    parseTreeNode* node = (parseTreeNode*) malloc (sizeof(parseTreeNode));
-   node->nodeInfo.line = T->line;
-   node->nodeInfo.type = T->type;
-   node->nodeInfo.value = T->value;
-   node->numChildren = 0;
-   node->leftMost = 0;
+   node->tokenInfo.tokenPtr = T;
+   node->parent = NULL;
+   node->leftChild = NULL;
+   node->rightSibling = NULL;
+   node->isTerminal = 1;
+   return node;
 }
 
-void initParseTree(parseTreeNode *root) {
-   root = buildParseTreeNodeFromType(PROGRAM);
+parseTreeNode* initParseTree() {
+   return buildParseTreeNodeFromType(PROGRAM);
 }
 
-int main() {
-   ffSets ff;
-   parseTable pTable;
-   parseStack pStack;
-   tokenList tList;
-   twinBuffer b;
-   FILE* source;
-   int eof;
-   hashTableEntry globalHashTable[HASHTABLESIZE];
+void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule, token* currentToken) {
+   parseTreeNode* select;
 
-   memset(&pTable, 0, sizeof(pTable));
-   memset(&ff, 0, sizeof(ff));
-   memset(&pStack, 0, sizeof(pStack));
-   memset(&tList, 0, sizeof(tList));
+   if(rule->expansion[0] < PROGRAM) {
+      // assuming that it is equal to the current token
+      node->leftChild = buildParseTreeNodeFromToken(currentToken);
+   } else {
+      node->leftChild = buildParseTreeNodeFromType(rule->expansion[0]);
+   }
+   node->leftChild->parent = node;
+   select = node->leftChild;
+
+   for (int i = 1; i < rule->termsInExpansion; i++) {
+      if(rule->expansion[i] < PROGRAM) {
+         select->rightSibling = buildParseTreeNodeFromToken(currentToken);
+      }
+      else {
+         select->rightSibling = buildParseTreeNodeFromType(rule->expansion[i]);
+      }
+      select->parent = node;
+      select = select->rightSibling;
+   }
+}
+
+void printParseTreeNode(parseTreeNode* pN) {
+   if (pN->isTerminal) printf("%s\tLine no. %ld\n", getStringOf(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line);
+   else printf("%s\n", getStringOf(pN->tokenInfo.tokenType));
+}
+
+void printParseTree(parseTreeNode* node, int depth) {
+   // if (depth == 0) { for(int i=0; i<depth; i++) printf("   "); printParseTreeNode(node); }
+
+   parseTreeNode* sib = node;
+
+   for (; sib != NULL; sib = sib->rightSibling) {
+      for(int i=0; i<depth; i++) printf("   "); printParseTreeNode(sib);
+      if (sib->leftChild != NULL) {
+         printParseTree(sib->leftChild, depth + 1);
+      }
+   }
+}
+
+// int main() {
+//    ffSets ff;
+//    parseTable pTable;
+//    parseStack pStack;
+//    tokenList tList;
+//    twinBuffer b;
+//    FILE* source;
+//    int eof;
+//    hashTableEntry globalHashTable[HASHTABLESIZE];
+
+//    memset(&pTable, 0, sizeof(pTable));
+//    memset(&ff, 0, sizeof(ff));
+//    memset(&pStack, 0, sizeof(pStack));
+//    memset(&tList, 0, sizeof(tList));
    
-   gram g = readGram();
-   // for (int i=0; i<g.numberOfRules; i++) printRule(&g.rules[i]);
-   // printf("--------------\n\n");
+//    gram g = readGram();
+//    // for (int i=0; i<g.numberOfRules; i++) printRule(&g.rules[i]);
+//    // printf("--------------\n\n");
 
-   computeFirsts(&g, &ff);
+//    computeFirsts(&g, &ff);
 
-   // printf("First Sets\n");
-   // for (int i=0; i < ff.numberOfFFS; i++) {
-   //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
-   //    for (int j = 0; j < ff.sets[i].numFirst; j++) {
-   //       printf("%s ", getStringOf(ff.sets[i].first[j]));
-   //    }
-   //    printf("}\n");
-   // }
+//    // printf("First Sets\n");
+//    // for (int i=0; i < ff.numberOfFFS; i++) {
+//    //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
+//    //    for (int j = 0; j < ff.sets[i].numFirst; j++) {
+//    //       printf("%s ", getStringOf(ff.sets[i].first[j]));
+//    //    }
+//    //    printf("}\n");
+//    // }
 
-   computeFollows(&g, &ff);
+//    computeFollows(&g, &ff);
 
-   // printf("Follow Sets\n");
-   // for (int i=0; i < ff.numberOfFFS; i++) {
-   //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
-   //    for (int j = 0; j < ff.sets[i].numFollow; j++) {
-   //       printf("%s ", getStringOf(ff.sets[i].follow[j]));
-   //    }
-   //    printf("}\n");
-   // }
+//    // printf("Follow Sets\n");
+//    // for (int i=0; i < ff.numberOfFFS; i++) {
+//    //    printf("%s = { ", getStringOf(ff.sets[i].nonTerminal));
+//    //    for (int j = 0; j < ff.sets[i].numFollow; j++) {
+//    //       printf("%s ", getStringOf(ff.sets[i].follow[j]));
+//    //    }
+//    //    printf("}\n");
+//    // }
 
-   populateParseTable(&pTable, &g, &ff);
-   initStack(&pStack);
+//    populateParseTable(&pTable, &g, &ff);
+//    initStack(&pStack);
 
-   initLexerDefaults("t5.txt", source, &b, &eof, globalHashTable, &tList);
+//    initLexerDefaults("t5.txt", source, &b, &eof, globalHashTable, &tList);
 
-   // printf("\n\n\n");
+//    // printf("\n\n\n");
 
-   predictiveParse(&pStack, &pTable, &tList, &ff);
+//    predictiveParse(&pStack, &pTable, &tList, &ff);
 
-   printf("DONE (stack length = %d, stack top : %s)", pStack.top, pStack.top ? getStringOf(getStackTop(&pStack)) : "(null)");
+//    printf("DONE (stack length = %d, stack top : %s)", pStack.top, pStack.top ? getStringOf(getStackTop(&pStack)) : "(null)");
 
-   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   // printf("\n");
+//    // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+//    // printf("\n");
 
-   // termType t;
+//    // termType t;
 
-   // t = popStackTop(&pStack);
-   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   // printf("\n");
+//    // t = popStackTop(&pStack);
+//    // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+//    // printf("\n");
 
-   // pushStackTop(&pStack, t, &pTable, &tList);
-   // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
-   // printf("\n");
+//    // pushStackTop(&pStack, t, &pTable, &tList);
+//    // for (int i=0; i<=pStack.top; i++) printf("%10s  ", getStringOf(pStack.stack[i]));
+//    // printf("\n");
 
-   return 0;
-}
+//    return 0;
+// }
