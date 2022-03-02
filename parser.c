@@ -1,4 +1,4 @@
-#include "../lexer/lexer.h"
+#include "lexer.h"
 #include "parser.h"
 #include "parserDef.h"
 #include <stdio.h>
@@ -25,7 +25,7 @@ gram readGram() {
    int termnum = 0;
    char buf[100];
    char c;
-   FILE* f = fopen("src/parser/fullgram.txt", "r");
+   FILE* f = fopen("grammar.txt", "r");
    if (!f) perror("GRAMMAR FILE ERROR :");
 
    while (fscanf(f, "%s", buf) == 1) {
@@ -438,7 +438,7 @@ void recoverFromError(termType nT, ffSets* fS, parseStack* pStack, tokenList* tL
       }
    }
 
-   printf("Token stream exhausted but stack is not empty. Exiting.\n");
+   printf("Token stream exhausted but stack is not empty.\n Parser could not recover from errors.\n");
    exit(1);
 
    // int j = i;
@@ -505,7 +505,7 @@ void recoverFromErrorNew(termType nT, ffSets* fS, parseStack* pStack, tokenList*
          }
       }
    }
-   printf("Token stream exhausted but stack is not empty. Exiting.\n");
+   printf("Token stream exhausted but stack is not empty.\n Parser could not recover from errors.\n");
    exit(1);
 }
 

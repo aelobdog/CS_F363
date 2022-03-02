@@ -1,8 +1,8 @@
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
 
-#include "../lexer/lexerDef.h"
-#include "../lexer/lexer.h"
+#include "lexerDef.h"
+#include "lexer.h"
 
 #define MAX_DISTINCT_NONTERMS 100
 #define MAX_STACK_SIZE 2500

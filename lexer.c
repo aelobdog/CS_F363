@@ -160,6 +160,7 @@ void consolePrintNoComments(char* testcaseFile) {
             printf("\n");
             continue;
         }
+        if (feof(g)) break;
         printf("%c",c);
     }
     fclose(g);

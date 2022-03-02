@@ -1,5 +1,5 @@
-#include "src/parser/parser.h"
-#include "src/parser/parserDef.h"
+#include "parser.h"
+#include "parserDef.h"
 #include <string.h>
 
 int main() {

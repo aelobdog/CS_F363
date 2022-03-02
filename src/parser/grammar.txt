@@ -1,4 +1,0 @@
-program otherFunctions mainFunction
-mainFunction TK_MAIN TK_END
-otherFunctions TK_SEM
-otherFunctions eps

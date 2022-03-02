@@ -41,12 +41,12 @@ parseTreeNode* buildParseTreeNodeFromType(termType, int);
 // creates a parse tree node for a terminal for the specified token
 parseTreeNode* buildParseTreeNodeFromToken(token*, int);
 
+// helper functions to print parseTree
 void printParseTreeNode(parseTreeNode*);
-
 void printParseTree(parseTreeNode*);
 
+// helper functions to help in adding nodes to the parse tree
 void addTerminalToParseTreeAt(parseTreeNode**, int, token*);
-
 void addNonTerminalToParseTreeAt(parseTreeNode**, int, termType);
 
 #endif
