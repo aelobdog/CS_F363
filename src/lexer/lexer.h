@@ -15,6 +15,7 @@ token getToken(twinBuffer*, hashTableEntry*);
 // getTokenList : extracts and writes the list of tokens from the source file
 void getTokenList(twinBuffer*, hashTableEntry*, token*);
 
+// getAndPrintTokenList : extracts and prints the list of tokens from the source file
 void getAndPrintTokenList(twinBuffer*, hashTableEntry*, token*);
 
 // tokenTypeName : get the name of the token type
@@ -32,6 +33,9 @@ void prettyHeading();
 // initGlobalHashTable : to initialize the global hash table
 void initGlobalHashTable(hashTableEntry*);
 
+// initLexerDefaults : reads source code from specified file, loads its contents into the given twin buffer,
+// initializes said buffer with default values, initializes the global hash table given and extracts the token list,
+// into given token list 
 void initLexerDefaults(char*, FILE*, twinBuffer*, int*, hashTableEntry*, tokenList*);
 
 // removeComments : function to clean the file (removing all the comments)

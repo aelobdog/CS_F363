@@ -438,7 +438,7 @@ void recoverFromError(termType nT, ffSets* fS, parseStack* pStack, tokenList* tL
       }
    }
 
-   printf("exiting earlier than expected\n");
+   printf("Token stream exhausted but stack is not empty. Exiting.\n");
    exit(1);
 
    // int j = i;
@@ -454,6 +454,59 @@ void recoverFromError(termType nT, ffSets* fS, parseStack* pStack, tokenList* tL
    //       return;
    //    }
    // }
+}
+
+void recoverFromErrorNew(termType nT, ffSets* fS, parseStack* pStack, tokenList* tList) {
+   firstAndFollow* handleNT = &(fS->sets[nT - PROGRAM]);
+   int min = (handleNT->numFirst < handleNT->numFollow) ? handleNT->numFirst : handleNT->numFollow;
+   // printf("min of first and follow : %d\n", min);
+   int i;
+
+   for (; tList->list[tList->current].type != DOLLAR; tList->current++) {
+      for (i = 0; i < min; i++) {
+         // printf("scanning ff for %s\n", getStringOf(tList->list[tList->current].type));
+         // printf("first : %s\nfollow : %s\n", getStringOf(handleNT->first[i]), getStringOf(handleNT->follow[i]));
+         if (tList->list[tList->current].type == handleNT->first[i]) {
+            return;
+         } else if (tList->list[tList->current].type == handleNT->follow[i]) {
+            // printf("popping %s in error recovery\n", getStringOf(getStackTop(pStack)));
+            popStackTop(pStack);
+            // tList->current++;
+            return;
+         }
+      }
+   }
+
+   // for (; tList->list[tList->current].type != DOLLAR; tList->current++) {
+   //    for (i = 0; i < handleNT->numFollow; i++) {
+   //       if (tList->list[tList->current].type == handleNT->follow[i]) {
+   //          // printf("here with %s and %s\n", getStringOf(nT), getStringOf(popStackTop(pStack)));
+   //          // printf("top of stack : %s\n", getStringOf(getStackTop(pStack)));
+   //          popStackTop(pStack);
+   //          return;
+   //       }
+   //    }
+   // }
+
+   int j = i;
+   for (; tList->list[tList->current].type != DOLLAR; tList->current++) {
+      for (; i < handleNT->numFirst; i++) {
+         if (tList->list[tList->current].type == handleNT->first[i]) {
+            return;
+         }
+      }
+   }
+   
+   for (; tList->list[tList->current].type != DOLLAR; tList->current++) {
+      for (; j < handleNT->numFollow; j++) {
+         if (tList->list[tList->current].type == handleNT->follow[j]) {
+            popStackTop(pStack);
+            return;
+         }
+      }
+   }
+   printf("Token stream exhausted but stack is not empty. Exiting.\n");
+   exit(1);
 }
 
 parseTreeNode* buildParseTreeNodeFromType(termType T, int depthFromStack) {
@@ -518,30 +571,6 @@ void addNonTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, 
    }
 }
 
-// void buildTreeFromRuleAt(parseTreeNode* node, prodRule* rule, token* currentToken) {
-//    parseTreeNode* select;
-
-//    if(rule->expansion[0] < PROGRAM) {
-//       // assuming that it is equal to the current token
-//       node->leftChild = buildParseTreeNodeFromToken(currentToken);
-//    } else {
-//       node->leftChild = buildParseTreeNodeFromType(rule->expansion[0]);
-//    }
-//    node->leftChild->parent = node;
-//    select = node->leftChild;
-
-//    for (int i = 1; i < rule->termsInExpansion; i++) {
-//       if(rule->expansion[i] < PROGRAM) {
-//          select->rightSibling = buildParseTreeNodeFromToken(currentToken);
-//       }
-//       else {
-//          select->rightSibling = buildParseTreeNodeFromType(rule->expansion[i]);
-//       }
-//       select->parent = node;
-//       select = select->rightSibling;
-//    }
-// }
-
 parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList* tList, ffSets* fS) {
    termType a = getCurrentTokenType(tList);
    termType X = getStackTop(pStack);
@@ -595,10 +624,10 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
          }
          printf("Line no %ld : Error: Invalid token %s encountered with value %s stack top %s\n", 
             getCurrentTokenLine(tList), 
-            getStringOf(getCurrentTokenType(tList)),
+            getStringOf(getCurrentTokenType  (tList)),
             value,
             getStringOf(X));
-         recoverFromError(X, fS, pStack, tList);
+         recoverFromErrorNew(X, fS, pStack, tList);
          a = getCurrentTokenType(tList);
          // X = getStackTop(pStack);
          // continue;

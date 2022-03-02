@@ -997,8 +997,4 @@ void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, ha
 
     initGlobalHashTable(globalHashTable);
     getTokenList(b, globalHashTable, tList->list);
-    // prettyHeading();
-    // int i;
-    // for (i=0; tList->list[i].type != DOLLAR; i++) prettyToken(tList->list[i]);
-    // prettyToken(tList->list[i]);
 }

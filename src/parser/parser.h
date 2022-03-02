@@ -23,19 +23,23 @@ termType popStackTop(parseStack*);
 // 'parseTable' and sets the stack's top to the top of the stack.
 prodRule* pushStackTop(parseStack*, termType, int, parseTable*, tokenList*);
 
-//parses the given code using a stack and tokenstream by looking at rules from the parseTable
+// parses the given code using a stack and tokenstream by looking at rules from the parseTable
 parseTreeNode* predictiveParse(parseStack*, parseTable*, tokenList*, ffSets*);
 
-//recover from errors by checking the syn set
+// recover from errors by checking the syn set (syn set = follow set)
 void recoverFromError(termType, ffSets*, parseStack*, tokenList*);
 
+// recover from errors by checking the syn set (syn set = follow and first set)
+void recoverFromErrorNew(termType, ffSets*, parseStack*, tokenList*);
+
+// create a parse tree with one node (set to PROGRAM)
 parseTreeNode* initParseTree();
 
+// creates a parse tree node for a non terminal of specified type
 parseTreeNode* buildParseTreeNodeFromType(termType, int);
 
+// creates a parse tree node for a terminal for the specified token
 parseTreeNode* buildParseTreeNodeFromToken(token*, int);
-
-void buildTreeFromRuleAt(parseTreeNode*, prodRule*, token*);
 
 void printParseTreeNode(parseTreeNode*);
 

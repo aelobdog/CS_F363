@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "src/lexer/lexer.h"
 #include "src/lexer/lexerDef.h"
 
@@ -57,6 +58,14 @@ int main() {
                 // break;
 
             case 3: break;
+            case 4: clock_t start_time, end_time;
+                    double total_CPU_time, total_CPU_time_in_seconds;
+                    start_time = clock();
+                    // invoke your lexer and parser here
+                    end_time = clock();
+                    total_CPU_time = (double) (end_time - start_time);
+                    total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
+                    // Print both total_CPU_time and total_CPU_time_in_seconds
         }
     }
     return 0;

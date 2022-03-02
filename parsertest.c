@@ -46,7 +46,7 @@ int main() {
    populateParseTable(&pTable, &g, &ff);
    initStack(&pStack);
 
-   initLexerDefaults("test.txt", source, &b, &eof, globalHashTable, &tList);
+   initLexerDefaults("t6.txt", source, &b, &eof, globalHashTable, &tList);
 
    // printf("\n\n\n");
 
