@@ -538,36 +538,65 @@ parseTreeNode* initParseTree() {
 
 void addTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, token* T) {
    parseTreeNode* select = *(pTreeNode);
+   parseTreeNode** current = pTreeNode;
+
    int depthdiff = depthFromStack - (*pTreeNode)->depthOfNode;
    if (depthdiff < 0) {
       depthdiff = (-depthdiff) + 1;
-      for(; depthdiff > 0; depthdiff--) select = select->parent;
+      for(; depthdiff > 0; depthdiff--) {
+         // select = select->parent;
+         (*current) = (*current)->parent;
+      }
    }
+   select = (*current);
+
    if (select->leftChild == NULL) {
       select->leftChild = buildParseTreeNodeFromToken(T, depthFromStack);
+      (*current)->leftChild->parent = (*current);
    }
    else {
-      select = select->leftChild;
-      while(select->rightSibling != NULL) select = select->rightSibling;
+      // select = select->leftChild;
+      (*current) = (*current)->leftChild;
+      select = (*current);
+      while((*current)->rightSibling != NULL) {
+         // select = select->rightSibling;
+         (*current) = (*current)->rightSibling;
+      }
+      select = (*current);
       select->rightSibling = buildParseTreeNodeFromToken(T, depthFromStack);
+      (*current)->rightSibling->parent = (*current)->parent;
    }
-
 }
 
 void addNonTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, termType T) {
    parseTreeNode *select = *(pTreeNode);
+   parseTreeNode** current = pTreeNode;
+
    int depthDiff = depthFromStack - (*pTreeNode)->depthOfNode;
    if (depthDiff < 0) {
       depthDiff = (-depthDiff) + 1;
-      for (; depthDiff > 0; depthDiff--) select = select->parent;
+      for (; depthDiff > 0; depthDiff--) {
+         // select = select->parent;
+         (*current) = (*current)->parent;
+      }
    }
+   select = (*current);
    
    if (select->leftChild == NULL) {
       select->leftChild = buildParseTreeNodeFromType(T, depthFromStack);
+      (*current)->leftChild->parent = (*current);
+      (*current) = (*current)->leftChild;
    } else {
-      select = select->leftChild;
-      while (select->rightSibling != NULL) select = select->rightSibling;
+      // select = select->leftChild;
+      (*current) = (*current)->leftChild;
+      while ((*current)->rightSibling != NULL) {
+         // select = select->rightSibling;
+         (*current) = (*current)->rightSibling;
+      }
+      select = (*current);
       select->rightSibling = buildParseTreeNodeFromType(T, depthFromStack);
+      (*current)->rightSibling->parent = (*current)->parent;
+      (*current) = (*current)->rightSibling;
    }
 }
 
@@ -648,8 +677,8 @@ parseTreeNode* predictiveParse(parseStack* pStack, parseTable* pTable, tokenList
 }
 
 void printParseTreeNode(parseTreeNode* pN) {
-   if (pN->isTerminal) printf("> %s (Line %ld)\n", getStringOf(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line);
-   else printf("> %s\n", getStringOf(pN->tokenInfo.tokenType));
+   if (pN->isTerminal) printf("> %s (Line %ld) [parent : %s]\n", getStringOf(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line, pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : " ");
+   else printf("> %s [parent : %s]\n", getStringOf(pN->tokenInfo.tokenType), pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : " ");
 }
 
 
