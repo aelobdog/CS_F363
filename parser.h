@@ -1,3 +1,7 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #ifndef PARSER_H
 #define PARSER_H
 #include "parserDef.h"
@@ -37,13 +41,16 @@ parseTreeNode* initParseTree();
 
 // creates a parse tree node for a non terminal of specified type
 parseTreeNode* buildParseTreeNodeFromType(termType, int);
-
 // creates a parse tree node for a terminal for the specified token
 parseTreeNode* buildParseTreeNodeFromToken(token*, int);
 
-// helper functions to print parseTree
+// helper functions to print parseTree on console
 void printParseTreeNode(parseTreeNode*);
 void printParseTree(parseTreeNode*);
+
+// helperFunctions to write the parse treeInorder to a file
+void fprintParseTreeNode(parseTreeNode*, FILE*);
+void fprintParseTree(parseTreeNode*, FILE*);
 
 // helper functions to help in adding nodes to the parse tree
 void addTerminalToParseTreeAt(parseTreeNode**, int, token*);

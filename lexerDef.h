@@ -1,3 +1,7 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #ifndef LEXERDEF_H
 #define LEXERDEF_H
 
@@ -5,6 +9,7 @@
 typedef uint64_t u64;
 
 #define MAX_TOKENS 2500
+#define TWIN_BUF_SINGLE_CAP 100
 
 typedef enum termType {
     // TK_EOF,
@@ -153,8 +158,9 @@ typedef struct tokenList {
 
 // twinBuffer
 typedef struct twinBuffer {
-    char buffer1[4096];
-    char buffer2[4096];
+    FILE* source;
+    char buffer1[TWIN_BUF_SINGLE_CAP];
+    char buffer2[TWIN_BUF_SINGLE_CAP];
 
     char* lbBuf;
     char* fBuf;

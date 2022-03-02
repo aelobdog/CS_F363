@@ -1,3 +1,7 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -295,7 +299,7 @@ void reportLexError(char* tokenName, u64 line) {
 }
 
 FILE* loadBuffer(char* buffer, FILE* source, int *eof) {
-    fread(buffer, 4096, 1, source);
+    fread(buffer, TWIN_BUF_SINGLE_CAP, 1, source);
     buffer[strlen(buffer)] = '\0';
     *eof = feof(source);
     if (*eof) *eof = 1;
@@ -303,7 +307,7 @@ FILE* loadBuffer(char* buffer, FILE* source, int *eof) {
 }
 
 void incForward(twinBuffer *b) {
-    if (b->forward - b->fBuf == 4095) {
+    if (b->forward - b->fBuf == TWIN_BUF_SINGLE_CAP - 1) {
         if (b->fBuf == b->buffer1) b->fBuf = b->buffer2;
         else b->fBuf = b->buffer1;
         b->forward = b->fBuf;
@@ -317,10 +321,29 @@ void decForward(twinBuffer *b) {
     if (b->forward == b->fBuf) {
         if (b->fBuf == b->buffer1) b->fBuf = b->buffer2;
         else b->fBuf = b->buffer1;
-        b->forward = b->fBuf + 4095;
+        b->forward = b->fBuf + TWIN_BUF_SINGLE_CAP - 1;
     }
     else {
         b->forward--;
+    }
+}
+
+void incLexemeBegin(twinBuffer *b, int len) {
+    int eof;
+    if (b->lexemeBegin + len - b->lbBuf > TWIN_BUF_SINGLE_CAP - 1) {
+        int moveInOther = b->lexemeBegin + len - b->lbBuf - TWIN_BUF_SINGLE_CAP + 1;
+        if (b->lbBuf == b->buffer1) { 
+            b->lbBuf = b->buffer2;
+            b->source = loadBuffer(b->buffer1, b->source, &eof);
+        }
+        else { 
+            b->lbBuf = b->buffer1;
+            b->source = loadBuffer(b->buffer2, b->source, &eof);
+        }
+        b->lexemeBegin = b->lbBuf + moveInOther;
+    }
+    else {
+        b->lexemeBegin += len;
     }
 }
 
@@ -983,12 +1006,12 @@ void getAndPrintTokenList(twinBuffer* b, hashTableEntry* globalHashTable, token 
    } while (T.type != DOLLAR && i < MAX_TOKENS);
 }
 
-void initLexerDefaults(char* filename, FILE* source, twinBuffer *b, int* eof, hashTableEntry* globalHashTable, tokenList* tList) {
-    source = fopen(filename, "r");
-    if (!source) perror("FILE READ ERROR : ");
+void initLexerDefaults(char* filename, twinBuffer *b, int* eof, hashTableEntry* globalHashTable, tokenList* tList) {
+    b->source = fopen(filename, "r");
+    if (!b->source) perror("FILE READ ERROR : ");
 
-    source = loadBuffer(b->buffer1, source, eof);
-    if (! *eof) source = loadBuffer(b->buffer2, source, eof);
+    b->source = loadBuffer(b->buffer1, b->source, eof);
+    if (! *eof) b->source = loadBuffer(b->buffer2, b->source, eof);
 
     b->fBuf = b->buffer1;
     b->lbBuf = b->buffer1;

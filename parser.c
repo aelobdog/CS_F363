@@ -1,3 +1,7 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #include "lexer.h"
 #include "parser.h"
 #include "parserDef.h"
@@ -681,6 +685,35 @@ void printParseTreeNode(parseTreeNode* pN) {
    else printf("> %s [parent : %s]\n", getStringOf(pN->tokenInfo.tokenType), pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : " ");
 }
 
+void fprintParseTreeNode(parseTreeNode* pN, FILE* file) {
+   if (pN->isTerminal) {
+      fprintf(file, "lexeme\t%s\tline no. %3ld\t%s\t", tokenTypeValue(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line, tokenTypeName(pN->tokenInfo.tokenPtr->type));
+      if (pN->tokenInfo.tokenPtr->type == TK_RNUM || pN->tokenInfo.tokenPtr->type == TK_NUM) {
+         fprintf(file, "%s\t", pN->tokenInfo.tokenPtr->value.idPtr);
+      }
+      fprintf(file, "%s\t", getStringOf(pN->parent->tokenInfo.tokenType));
+      fprintf(file, "yes\n");
+   } else {
+      fprintf(file, "lexeme\t----\t");
+      // printf("%s\t", getStringOf(pN->parent->tokenInfo.tokenPtr->type));
+      fprintf(file, "%s\t", pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : "ROOT");
+      fprintf(file, "no\t%s\t\n", getStringOf(pN->tokenInfo.tokenType));
+   }
+}
+
+void fprintParseTree(parseTreeNode* pN, FILE* file) {
+   if (pN->leftChild != NULL) {
+      fprintParseTree(pN->leftChild, file);
+      fprintParseTreeNode(pN, file);
+      
+      parseTreeNode* sib = pN->leftChild->rightSibling;
+      for (; sib != NULL; sib = sib->rightSibling) {
+         fprintParseTree(sib, file);
+      }
+   } else {
+      fprintParseTreeNode(pN, file);
+   }
+}
 
 // TODO : remove unicode if necessary
 void printParseTree(parseTreeNode* node) {

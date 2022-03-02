@@ -1,3 +1,7 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #ifndef LEXER_H
 #define LEXER_H
 
@@ -6,7 +10,7 @@
 
 #define HASHTABLESIZE 512
 
-// loadBuffer : loads the given buffer with 4K memory read from given file
+// loadBuffer : loads the given buffer with TWIN_BUF_SINGLE_CAP amount memory read from given file
 FILE* loadBuffer(char*, FILE*, int*);
 
 // getToken : extract a token from the input stream
@@ -36,7 +40,7 @@ void initGlobalHashTable(hashTableEntry*);
 // initLexerDefaults : reads source code from specified file, loads its contents into the given twin buffer,
 // initializes said buffer with default values, initializes the global hash table given and extracts the token list,
 // into given token list 
-void initLexerDefaults(char*, FILE*, twinBuffer*, int*, hashTableEntry*, tokenList*);
+void initLexerDefaults(char*, twinBuffer*, int*, hashTableEntry*, tokenList*);
 
 // removeComments : function to clean the file (removing all the comments)
 void removeComments(char*, char*);
