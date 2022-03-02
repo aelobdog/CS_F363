@@ -60,6 +60,9 @@ int main(int argc, char* argv[]) {
                 b.source = loadBuffer(b.buffer1, b.source, &eof);
                 if (!eof)  b.source = loadBuffer(b.buffer2, b.source, &eof);
 
+                printf("buffer1\n%s --> %d\n\n", b.buffer1, strlen(b.buffer1));
+                printf("buffer2\n%s --> %d\n\n", b.buffer2, strlen(b.buffer2));
+
                 b.fBuf = b.buffer1;
                 b.lbBuf = b.buffer1;
                 b.forward = b.fBuf;
@@ -67,7 +70,14 @@ int main(int argc, char* argv[]) {
                 b.currentLine = 1;
 
                 initGlobalHashTable(globalHashTable);
-                getAndPrintTokenList(&b, globalHashTable, tList.list);
+                token T;
+                T = getToken(&b, globalHashTable);
+                while (T.type != DOLLAR) {
+                    prettyToken(T);
+                    
+                    T = getToken(&b, globalHashTable);
+                }
+                // getAndPrintTokenList(&b, globalHashTable, tList.list);
                 fclose(b.source);
                 break;
 

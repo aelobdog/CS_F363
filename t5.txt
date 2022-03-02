@@ -23,6 +23,7 @@ output parameter list[real d3];
 	endwhile
 	return [d3];
 end
+
 % type checking will be required in stage 2. Despite some type errors, undeclared variables etc the code is syntactically correct
 %in this function.
 _main 

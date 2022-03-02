@@ -307,6 +307,17 @@ FILE* loadBuffer(char* buffer, FILE* source, int *eof) {
 }
 
 void incForward(twinBuffer *b) {
+    int eof;
+    if (! (feof(b->source)) && b->forward - b->fBuf == TWIN_BUF_SINGLE_CAP - 1 && b->lbBuf != b->fBuf) {
+        if (!feof(b->source)) b->source = loadBuffer(b->buffer1, b->source, &eof);
+        if (eof) b->source = loadBuffer(b->buffer2, b->source, &eof);
+        b->lbBuf = b->buffer1;
+        b->fBuf = b->buffer1;
+        b->forward = b->fBuf;
+        b->lexemeBegin = b->lbBuf;
+        return;
+    }
+
     if (b->forward - b->fBuf == TWIN_BUF_SINGLE_CAP - 1) {
         if (b->fBuf == b->buffer1) b->fBuf = b->buffer2;
         else b->fBuf = b->buffer1;
@@ -329,16 +340,24 @@ void decForward(twinBuffer *b) {
 }
 
 void incLexemeBegin(twinBuffer *b, int len) {
+    if (feof(b->source)) return; 
+
+    fflush(stdin);
     int eof;
     if (b->lexemeBegin + len - b->lbBuf > TWIN_BUF_SINGLE_CAP - 1) {
         int moveInOther = b->lexemeBegin + len - b->lbBuf - TWIN_BUF_SINGLE_CAP + 1;
         if (b->lbBuf == b->buffer1) { 
             b->lbBuf = b->buffer2;
-            b->source = loadBuffer(b->buffer1, b->source, &eof);
+           if (!feof(b->source)) b->source = loadBuffer(b->buffer1, b->source, &eof);
+
+                printf("buffer1\n%s\n\n", b->buffer1);
+                printf("buffer2\n%s\n\n", b->buffer2);
         }
         else { 
             b->lbBuf = b->buffer1;
-            b->source = loadBuffer(b->buffer2, b->source, &eof);
+            if (!feof(b->source)) b->source = loadBuffer(b->buffer2, b->source, &eof);
+                printf("buffer1\n%s\n\n", b->buffer1);
+                printf("buffer2\n%s\n\n", b->buffer2);
         }
         b->lexemeBegin = b->lbBuf + moveInOther;
     }
@@ -978,6 +997,7 @@ token getToken(twinBuffer* b, hashTableEntry* globalHashTable) {
     }
 
     T.line = b->currentLine;
+    if (! feof(b->source))incLexemeBegin(b, strlen(charBuf));
     setTokenValue(&T, charBuf, cbPtr);
     return T;
 }

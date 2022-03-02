@@ -9,7 +9,8 @@
 typedef uint64_t u64;
 
 #define MAX_TOKENS 2500
-#define TWIN_BUF_SINGLE_CAP 100
+
+#define TWIN_BUF_SINGLE_CAP 4096
 
 typedef enum termType {
     // TK_EOF,
@@ -160,7 +161,6 @@ typedef struct tokenList {
 typedef struct twinBuffer {
     FILE* source;
     char buffer1[TWIN_BUF_SINGLE_CAP];
-    char buffer2[TWIN_BUF_SINGLE_CAP];
 
     char* lbBuf;
     char* fBuf;
@@ -168,6 +168,7 @@ typedef struct twinBuffer {
     char* lexemeBegin;
     char* forward;
 
+    char buffer2[TWIN_BUF_SINGLE_CAP];
     u64 currentLine;
 } twinBuffer;
 
