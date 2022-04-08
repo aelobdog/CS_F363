@@ -11,10 +11,8 @@
 #include "lexerDef.h"
 #include "parser.h"
 #include "parserDef.h"
-#include "semantic.h"
-#include "semanticDef.h"
 
-int main (int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     printf("FIRST and FOLLOW set automated\n");
     printf("Both lexical and syntax analysis modules implemented\n");
     printf("\n\n");
@@ -37,24 +35,22 @@ int main (int argc, char* argv[]) {
     double total_CPU_time, total_CPU_time_in_seconds;
     struct timeval t1, t2;
 
-    // choice = 100; // just so that the while runs atleast one time
-    choice = 3;
+    choice = 100; // just so that the while runs atleast one time
 
     while(choice) {
-        // printf("Options:\n");
-        // printf("\t0. Exit\n");
-        // printf("\t1. Print the comment free code\n");
-        // printf("\t2. Print the tokens\n");
-        // printf("\t3. Parse source code and print the parse tree\n");
-        // printf("\t4. Print time taken for stage 1 (lexing and parsing)\n");
-        // printf("Choice : ");
-        // scanf("%d", &choice);
+        printf("Options:\n");
+        printf("\t0. Exit\n");
+        printf("\t1. Print the comment free code\n");
+        printf("\t2. Print the tokens\n");
+        printf("\t3. Parse source code and print the parse tree\n");
+        printf("\t4. Print time taken for stage 1 (lexing and parsing)\n");
+        printf("Choice : ");
+        scanf("%d", &choice);
         switch (choice) {
             case 0: break;
 
             case 1:
                 consolePrintNoComments(filename);
-                printf("\n");
                 break;
 
             case 2:
@@ -63,6 +59,9 @@ int main (int argc, char* argv[]) {
 
                 b.source = loadBuffer(b.buffer1, b.source, &eof);
                 if (!eof)  b.source = loadBuffer(b.buffer2, b.source, &eof);
+
+                printf("buffer1\n%s --> %ld\n\n", b.buffer1, strlen(b.buffer1));
+                printf("buffer2\n%s --> %ld\n\n", b.buffer2, strlen(b.buffer2));
 
                 b.fBuf = b.buffer1;
                 b.lbBuf = b.buffer1;
@@ -83,7 +82,7 @@ int main (int argc, char* argv[]) {
                 break;
 
             case 3: 
-                // if (argc != 3) { printf("USAGE : ./stage1exe SOURCE_FILE PARSETREE_OUTFILE\n"); continue; }
+                if (argc != 3) { printf("USAGE : ./stage1exe SOURCE_FILE PARSETREE_OUTFILE\n"); continue; }
                 memset(&pTable, 0, sizeof(pTable));
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
@@ -102,19 +101,14 @@ int main (int argc, char* argv[]) {
                 parseTreeNode* pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
                 printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
                 printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
-                printParseTree(pTree);
-                //FILE* file = fopen(argv[2], "w");
-                //fprintParseTree(pTree, file);
-                //fclose(file);
-                //fclose(b.source);
-                //printf("PARSE TREE WRITTEN TO FILE: %s\n",argv[2]);
+                // printParseTree(pTree);
+                FILE* file = fopen(argv[2], "w");
+                fprintParseTree(pTree, file);
+                fclose(file);
+                fclose(b.source);
+                printf("PARSE TREE WRITTEN TO FILE: %s\n",argv[2]);
 
-                // modifiying this part ----------
-                astNode* ast = makeAST(pTree, 0);// mkAST(pTree, 0);
-                // printAST(ast);
-                // -------------------------------
-                choice = 0;
-                exit(0);
+                break;
             
             case 4: 
                 memset(&pTable, 0, sizeof(pTable));

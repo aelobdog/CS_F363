@@ -542,7 +542,7 @@ void addTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, tok
    parseTreeNode** current = pTreeNode;
 
    int depthdiff = depthFromStack - (*pTreeNode)->depthOfNode;
-   if (depthdiff <= 0) {
+   if (depthdiff < 0) {
       depthdiff = (-depthdiff) + 1;
       for(; depthdiff > 0; depthdiff--) {
          // select = select->parent;
@@ -550,9 +550,6 @@ void addTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, tok
       }
    }
    select = (*current);
-
-   printf("adding %s to ", getStringOf(T->type));
-   printParseTreeNode(*current);
 
    if (select->leftChild == NULL) {
       select->leftChild = buildParseTreeNodeFromToken(T, depthFromStack);
@@ -579,7 +576,7 @@ void addNonTerminalToParseTreeAt(parseTreeNode** pTreeNode, int depthFromStack, 
    parseTreeNode** current = pTreeNode;
 
    int depthDiff = depthFromStack - (*pTreeNode)->depthOfNode;
-   if (depthDiff <= 0) {
+   if (depthDiff < 0) {
       depthDiff = (-depthDiff) + 1;
       for (; depthDiff > 0; depthDiff--) {
          // select = select->parent;

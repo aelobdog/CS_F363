@@ -11,7 +11,7 @@ typedef uint64_t u64;
 
 #define MAX_TOKENS 2500
 
-#define TWIN_BUF_SINGLE_CAP 8192
+#define TWIN_BUF_SINGLE_CAP 4096
 
 typedef enum termType {
     // TK_EOF,

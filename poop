@@ -1,8 +1,0 @@
-lexeme	_main	line no.   1	TK_MAIN	mainFunction	yes
-lexeme	----	program	no	mainFunction	
-lexeme	return	line no.   2	TK_RETURN	returnStmt	yes
-lexeme	----	stmts	no	returnStmt	
-lexeme	;	line no.   2	TK_SEM	returnStmt	yes
-lexeme	----	mainFunction	no	stmts	
-lexeme	end	line no.   3	TK_END	mainFunction	yes
-lexeme	----	ROOT	no	program	

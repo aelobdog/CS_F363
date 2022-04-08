@@ -1,0 +1,202 @@
+lexeme	_sumN	line no.   4	TK_FUNID	function	yes
+lexeme	----	otherFunctions	no	function	
+lexeme	input	line no.   4	TK_INPUT	input_par	yes
+lexeme	----	function	no	input_par	
+lexeme	parameter	line no.   4	TK_PARAMETER	input_par	yes
+lexeme	list	line no.   4	TK_LIST	input_par	yes
+lexeme	[	line no.   4	TK_SQL	input_par	yes
+lexeme	int	line no.   4	TK_INT	primitiveDatatype	yes
+lexeme	----	dataType	no	primitiveDatatype	
+lexeme	----	parameter_list	no	dataType	
+lexeme	----	input_par	no	parameter_list	
+lexeme	d5cc34	line no.   4	TK_ID	parameter_list	yes
+lexeme	]	line no.   4	TK_SQR	parameter_list	yes
+lexeme	output	line no.   5	TK_OUTPUT	output_par	yes
+lexeme	----	function	no	output_par	
+lexeme	parameter	line no.   5	TK_PARAMETER	output_par	yes
+lexeme	list	line no.   5	TK_LIST	output_par	yes
+lexeme	[	line no.   5	TK_SQL	output_par	yes
+lexeme	real	line no.   5	TK_REAL	primitiveDatatype	yes
+lexeme	----	dataType	no	primitiveDatatype	
+lexeme	----	parameter_list	no	dataType	
+lexeme	----	output_par	no	parameter_list	
+lexeme	d3	line no.   5	TK_ID	parameter_list	yes
+lexeme	]	line no.   5	TK_SQR	parameter_list	yes
+lexeme	;	line no.   5	TK_SEM	function	yes
+lexeme	type	line no.   6	TK_TYPE	declaration	yes
+lexeme	----	declarations	no	declaration	
+lexeme	int	line no.   6	TK_INT	primitiveDatatype	yes
+lexeme	----	dataType	no	primitiveDatatype	
+lexeme	----	declaration	no	dataType	
+lexeme	:	line no.   6	TK_COLON	declaration	yes
+lexeme	b5b567	line no.   6	TK_ID	declaration	yes
+lexeme	;	line no.   6	TK_SEM	declaration	yes
+lexeme	----	stmts	no	declarations	
+lexeme	----	function	no	stmts	
+lexeme	b5b567	line no.   7	TK_ID	singleOrRecId	yes
+lexeme	----	assignmentStmt	no	singleOrRecId	
+lexeme	<---	line no.   7	TK_ASSIGNOP	singleOrRecId	yes
+lexeme		line no.   7	TK_NUM	1	var	yes
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	arithmeticExpression	no	term	
+lexeme	----	singleOrRecId	no	arithmeticExpression	
+lexeme	;	line no.   7	TK_SEM	singleOrRecId	yes
+lexeme	----	stmt	no	assignmentStmt	
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	stmts	no	otherStmts	
+lexeme	d3	line no.   8	TK_ID	singleOrRecId	yes
+lexeme	----	assignmentStmt	no	singleOrRecId	
+lexeme	<---	line no.   8	TK_ASSIGNOP	singleOrRecId	yes
+lexeme		line no.   8	TK_RNUM	0.00	var	yes
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	arithmeticExpression	no	term	
+lexeme	----	singleOrRecId	no	arithmeticExpression	
+lexeme	;	line no.   8	TK_SEM	singleOrRecId	yes
+lexeme	----	stmt	no	assignmentStmt	
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	otherStmts	no	otherStmts	
+lexeme	while	line no.   9	TK_WHILE	iterativeStmt	yes
+lexeme	----	stmt	no	iterativeStmt	
+lexeme	(	line no.   9	TK_OP	iterativeStmt	yes
+lexeme	b5b567	line no.   9	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	booleanExpression	no	var	
+lexeme	----	iterativeStmt	no	booleanExpression	
+lexeme	<=	line no.   9	TK_LE	relationalOp	yes
+lexeme	----	booleanExpression	no	relationalOp	
+lexeme	d5cc34	line no.   9	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	relationalOp	no	var	
+lexeme	)	line no.   9	TK_CL	booleanExpression	yes
+lexeme	read	line no.  10	TK_READ	ioStmt	yes
+lexeme	----	stmt	no	ioStmt	
+lexeme	(	line no.  10	TK_OP	ioStmt	yes
+lexeme	c3bd	line no.  10	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	ioStmt	no	var	
+lexeme	)	line no.  10	TK_CL	ioStmt	yes
+lexeme	;	line no.  10	TK_SEM	ioStmt	yes
+lexeme	----	booleanExpression	no	stmt	
+lexeme	d3	line no.  11	TK_ID	singleOrRecId	yes
+lexeme	----	assignmentStmt	no	singleOrRecId	
+lexeme	<---	line no.  11	TK_ASSIGNOP	singleOrRecId	yes
+lexeme	d3	line no.  11	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	arithmeticExpression	no	term	
+lexeme	----	singleOrRecId	no	arithmeticExpression	
+lexeme	+	line no.  11	TK_PLUS	lowPrecedenceOperators	yes
+lexeme	----	expPrime	no	lowPrecedenceOperators	
+lexeme	c3bd	line no.  11	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	lowPrecedenceOperators	no	term	
+lexeme	----	arithmeticExpression	no	expPrime	
+lexeme	;	line no.  11	TK_SEM	arithmeticExpression	yes
+lexeme	----	stmt	no	assignmentStmt	
+lexeme	----	otherStmts	no	stmt	
+lexeme	b5b567	line no.  12	TK_ID	singleOrRecId	yes
+lexeme	----	assignmentStmt	no	singleOrRecId	
+lexeme	<---	line no.  12	TK_ASSIGNOP	singleOrRecId	yes
+lexeme	b5b567	line no.  12	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	arithmeticExpression	no	term	
+lexeme	----	singleOrRecId	no	arithmeticExpression	
+lexeme	+	line no.  12	TK_PLUS	lowPrecedenceOperators	yes
+lexeme	----	expPrime	no	lowPrecedenceOperators	
+lexeme		line no.  12	TK_NUM	1	var	yes
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	lowPrecedenceOperators	no	term	
+lexeme	----	arithmeticExpression	no	expPrime	
+lexeme	;	line no.  12	TK_SEM	arithmeticExpression	yes
+lexeme	----	stmt	no	assignmentStmt	
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	stmt	no	otherStmts	
+lexeme	endwhile	line no.  13	TK_ENDWHILE	stmt	yes
+lexeme	----	booleanExpression	no	otherStmts	
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	otherStmts	no	otherStmts	
+lexeme	return	line no.  14	TK_RETURN	returnStmt	yes
+lexeme	----	otherStmts	no	returnStmt	
+lexeme	[	line no.  14	TK_SQL	optionalReturn	yes
+lexeme	----	returnStmt	no	optionalReturn	
+lexeme	d3	line no.  14	TK_ID	idList	yes
+lexeme	----	optionalReturn	no	idList	
+lexeme	]	line no.  14	TK_SQR	idList	yes
+lexeme	;	line no.  14	TK_SEM	returnStmt	yes
+lexeme	end	line no.  15	TK_END	stmts	yes
+lexeme	----	program	no	otherFunctions	
+lexeme	----	ROOT	no	program	
+lexeme	_main	line no.  17	TK_MAIN	mainFunction	yes
+lexeme	----	program	no	mainFunction	
+lexeme	type	line no.  18	TK_TYPE	declaration	yes
+lexeme	----	declarations	no	declaration	
+lexeme	int	line no.  18	TK_INT	primitiveDatatype	yes
+lexeme	----	dataType	no	primitiveDatatype	
+lexeme	----	declaration	no	dataType	
+lexeme	:	line no.  18	TK_COLON	declaration	yes
+lexeme	b3	line no.  18	TK_ID	declaration	yes
+lexeme	;	line no.  18	TK_SEM	declaration	yes
+lexeme	type	line no.  19	TK_TYPE	declaration	yes
+lexeme	----	declarations	no	declaration	
+lexeme	real	line no.  19	TK_REAL	primitiveDatatype	yes
+lexeme	----	dataType	no	primitiveDatatype	
+lexeme	----	declaration	no	dataType	
+lexeme	:	line no.  19	TK_COLON	declaration	yes
+lexeme	c4bd56	line no.  19	TK_ID	declaration	yes
+lexeme	;	line no.  19	TK_SEM	declaration	yes
+lexeme	----	declaration	no	declarations	
+lexeme	----	stmts	no	declarations	
+lexeme	b3	line no.  20	TK_ID	singleOrRecId	yes
+lexeme	----	assignmentStmt	no	singleOrRecId	
+lexeme	<---	line no.  20	TK_ASSIGNOP	singleOrRecId	yes
+lexeme		line no.  20	TK_NUM	7	var	yes
+lexeme	----	factor	no	var	
+lexeme	----	term	no	factor	
+lexeme	----	arithmeticExpression	no	term	
+lexeme	----	singleOrRecId	no	arithmeticExpression	
+lexeme	;	line no.  20	TK_SEM	singleOrRecId	yes
+lexeme	----	stmt	no	assignmentStmt	
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	declarations	no	otherStmts	
+lexeme	[	line no.  21	TK_SQL	outputParameters	yes
+lexeme	----	funCallStmt	no	outputParameters	
+lexeme	c4bd56	line no.  21	TK_ID	idList	yes
+lexeme	----	outputParameters	no	idList	
+lexeme	]	line no.  21	TK_SQR	idList	yes
+lexeme	<---	line no.  21	TK_ASSIGNOP	idList	yes
+lexeme	----	stmt	no	funCallStmt	
+lexeme	call	line no.  21	TK_CALL	funCallStmt	yes
+lexeme	_sumN	line no.  21	TK_FUNID	funCallStmt	yes
+lexeme	with	line no.  21	TK_WITH	funCallStmt	yes
+lexeme	parameters	line no.  21	TK_PARAMETERS	funCallStmt	yes
+lexeme	[	line no.  21	TK_SQL	inputParameters	yes
+lexeme	----	funCallStmt	no	inputParameters	
+lexeme	b3	line no.  21	TK_ID	idList	yes
+lexeme	----	inputParameters	no	idList	
+lexeme	]	line no.  21	TK_SQR	idList	yes
+lexeme	;	line no.  21	TK_SEM	funCallStmt	yes
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	otherStmts	no	otherStmts	
+lexeme	write	line no.  22	TK_WRITE	ioStmt	yes
+lexeme	----	stmt	no	ioStmt	
+lexeme	(	line no.  22	TK_OP	ioStmt	yes
+lexeme	c4bd56	line no.  22	TK_ID	singleOrRecId	yes
+lexeme	----	var	no	singleOrRecId	
+lexeme	----	ioStmt	no	var	
+lexeme	)	line no.  22	TK_CL	ioStmt	yes
+lexeme	;	line no.  22	TK_SEM	ioStmt	yes
+lexeme	----	otherStmts	no	stmt	
+lexeme	----	otherStmts	no	otherStmts	
+lexeme	return	line no.  23	TK_RETURN	returnStmt	yes
+lexeme	----	declarations	no	returnStmt	
+lexeme	;	line no.  23	TK_SEM	returnStmt	yes
+lexeme	----	mainFunction	no	stmts	
+lexeme	end	line no.  24	TK_END	stmts	yes

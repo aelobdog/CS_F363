@@ -1,0 +1,11 @@
+_readMarks input parameter list[int b7]
+output parameter list [ record #marks b3c45];
+	read(b3c45.maths);
+	read(b3c45.physics);
+	read(b3c45.chemistry);
+	return [b3c45];
+end
+
+_main
+   return;
+end

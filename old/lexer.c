@@ -338,10 +338,11 @@ void decForward(twinBuffer *b) {
         b->forward--;
     }
 }
+
 void incLexemeBegin(twinBuffer *b, int len) {
     if (feof(b->source)) return; 
 
-    // fflush(stdin);
+    fflush(stdin);
     int eof;
     if (b->lexemeBegin + len - b->lbBuf > TWIN_BUF_SINGLE_CAP - 1) {
         int moveInOther = b->lexemeBegin + len - b->lbBuf - TWIN_BUF_SINGLE_CAP + 1;

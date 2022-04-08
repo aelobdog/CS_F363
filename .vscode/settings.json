@@ -1,0 +1,7 @@
+{
+   "files.associations": {
+      "parserdef.h": "c",
+      "semanticdef.h": "c",
+      "semantic.h": "c"
+   }
+}
