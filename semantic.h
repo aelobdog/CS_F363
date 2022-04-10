@@ -18,6 +18,23 @@ void printAstNode(astNode* root);
 astNode* makeAST(parseTreeNode*, int);
 
 astNode** addNode(astNode** ast, termType T, int depth);
+
+void addRNum(parseTreeNode *ptn, astNode** ast, int depth);
+void addNum(parseTreeNode *ptn, astNode** ast, int depth);
+void addTerm(parseTreeNode *ptn, astNode** ast, int depth);
+void addFactor(parseTreeNode *ptn, astNode** ast, int depth);
+void addExpPrime(parseTreeNode *ptn, astNode** ast, int depth);
+void addTermPrime(parseTreeNode *ptn, astNode** ast, int depth);
+void addLPO(parseTreeNode *ptn, astNode** ast, int depth);
+void addHPO(parseTreeNode *ptn, astNode** ast, int depth);
+void addVar(parseTreeNode *ptn, astNode** ast, int depth);
+void addArithExp(parseTreeNode *ptn, astNode** ast, int depth);
+void addMoreExp(parseTreeNode *ptn, astNode** ast, int depth);
+void addOneExp(parseTreeNode *ptn, astNode** ast, int depth);
+void addConstVar(parseTreeNode *ptn, astNode** ast, int depth);
+void addAssignStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addSingOrRecId(parseTreeNode *ptn, astNode** ast, int depth);
 void addFieldId(parseTreeNode *ptn, astNode** ast, int depth);
 void addInpPar(parseTreeNode *ptn, astNode** ast, int depth);
 void addOutPar(parseTreeNode *ptn, astNode** ast, int depth);
