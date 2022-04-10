@@ -13,7 +13,21 @@ void enter(symbolTable*, char*, dataType, ul);
 int addWidth(symbolTable*, ul);
 
 void printAST(astNode* root);
+void printAstNode(astNode* root);
 
 astNode* makeAST(parseTreeNode*, int);
+
+void addId(parseTreeNode *ptn, astNode** ast, int depth);
+void addMoreIds(parseTreeNode *ptn, astNode** ast, int depth);
+void addIdList(parseTreeNode *ptn, astNode** ast, int depth);
+void addOptRet(parseTreeNode *ptn, astNode** ast, int depth);
+void addTypeDefs(parseTreeNode *ptn, astNode** ast, int depth);
+void addDecls(parseTreeNode *ptn, astNode** ast, int depth);
+void addOtherStmts(parseTreeNode *ptn, astNode** ast, int depth);
+void addRetStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addStmts(parseTreeNode *ptn, astNode** ast, int depth);
+void addOtherFn(parseTreeNode *ptn, astNode** ast, int depth);
+void addMainFn(parseTreeNode *ptn, astNode** ast, int depth);
+void mkProgram(parseTreeNode *ptn, astNode** ast);
 
 #endif

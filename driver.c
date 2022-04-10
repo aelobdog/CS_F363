@@ -89,20 +89,21 @@ int main (int argc, char* argv[]) {
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
                 g = readGram();
-                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
+                //printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
                 computeFirsts(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
+                //printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
                 computeFollows(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
+                //printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
                 populateParseTable(&pTable, &g, &ff);
-                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
+                //printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
                 initStack(&pStack);
                 initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
+                //printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
                 parseTreeNode* pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
-                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
-                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                //printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
+                //printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
                 printParseTree(pTree);
+                printf("\n\n");
                 //FILE* file = fopen(argv[2], "w");
                 //fprintParseTree(pTree, file);
                 //fclose(file);
@@ -111,7 +112,10 @@ int main (int argc, char* argv[]) {
 
                 // modifiying this part ----------
                 astNode* ast = makeAST(pTree, 0);// mkAST(pTree, 0);
-                // printAST(ast);
+                // printAstNode(ast);
+                // printAstNode(ast->leftChild);
+                printf("\n\n");
+                printAST(ast);
                 // -------------------------------
                 choice = 0;
                 exit(0);
