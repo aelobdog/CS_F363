@@ -1,8 +1,18 @@
 _main
-    type int: b2;
-    type real: d2;
+%    type int: b2;
+%    type real: d2;
+%    b2 <--- 5 / (3 + 1) * 2;
+    read(d2);
+%    [b2] <--- call _random with parameters [d2, b2];
+%    while ((b2 > d2) @@@ (b2 < d2))
+%        read(b2);
+%    endwhile
 
-    b2 <--- 5 / (3 + 1) * 2;
+    if (~ (b2 < d2)) then
+        read(b2);
+    else
+        write(b2);
+    endif
 
     return [b2, d2];
 end

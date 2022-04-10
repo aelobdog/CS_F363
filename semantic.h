@@ -19,6 +19,15 @@ astNode* makeAST(parseTreeNode*, int);
 
 astNode** addNode(astNode** ast, termType T, int depth);
 
+void addElsePart(parseTreeNode *ptn, astNode** ast, int depth);
+int  addThenPart(parseTreeNode *ptn, astNode** ast, int depth);
+void addBoolExp(parseTreeNode *ptn, astNode** ast, int depth);
+void addOutputPars(parseTreeNode *ptn, astNode** ast, int depth);
+void addInputPars(parseTreeNode *ptn, astNode** ast, int depth);
+void addIterStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addIOStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addCondStmt(parseTreeNode *ptn, astNode** ast, int depth);
+void addFnCallStmt(parseTreeNode *ptn, astNode** ast, int depth);
 void addRNum(parseTreeNode *ptn, astNode** ast, int depth);
 void addNum(parseTreeNode *ptn, astNode** ast, int depth);
 void addTerm(parseTreeNode *ptn, astNode** ast, int depth);

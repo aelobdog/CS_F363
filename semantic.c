@@ -12,6 +12,7 @@
 #include "lexer.h"
 #include "lexerDef.h"
 #include "parserDef.h"
+#include "parser.h"
 #include "semanticDef.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -118,7 +119,9 @@ addIdList(parseTreeNode *ptn, astNode** ast, int depth) {
     // using a function to add in the identifier because it will make making
     // the symbol table stuff easier later.
     addId(ptn->leftChild, ast, depth);
-    if (ptn->leftChild->rightSibling != NULL) addMoreIds(ptn->leftChild->rightSibling, ast, depth);
+    if (ptn->leftChild->rightSibling != NULL) {
+        addMoreIds(ptn->leftChild->rightSibling, ast, depth);
+    }
 }
 
 void
@@ -450,6 +453,135 @@ addArithExp(parseTreeNode *ptn, astNode** ast, int depth) {
 }
 
 void
+addOutputPars(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, OUTPUTPARAMETERS);
+    astNode** iter = addNode(ast, OUTPUTPARAMETERS, depth);
+    addIdList(ptn->leftChild->rightSibling, iter, depth + 1);
+}
+
+void
+addInputPars(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, INPUTPARAMETERS);
+    astNode** iter = addNode(ast, INPUTPARAMETERS, depth);
+    addIdList(ptn->leftChild->rightSibling, iter, depth + 1);
+}
+
+void
+addFnCallStmt(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, FUNCALLSTMT);
+    astNode** iter = addNode(ast, FUNCALLSTMT, depth);
+    addFunId(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+
+    if (! ptn->leftChild->isTerminal) {
+        addOutputPars(ptn->leftChild, iter, depth + 1);
+    }
+    addInputPars(ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling, iter, depth + 1);
+}
+
+void
+addBoolExp(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, BOOLEANEXPRESSION);
+    astNode** iter;
+    if (ptn->leftChild->isTerminal) {
+        if (ptn->leftChild->tokenInfo.tokenPtr->type == TK_NOT) {
+            iter = addNode(ast, TK_NOT, depth);
+            addBoolExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+        } else {
+            iter = addNode(
+                ast,
+                ptn->leftChild->rightSibling->rightSibling->rightSibling->leftChild->tokenInfo.tokenPtr->type,
+                depth);
+
+            addBoolExp(ptn->leftChild->rightSibling, iter, depth + 1);
+
+            addBoolExp(
+                ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling,
+                iter,
+                depth + 1);
+        }
+    } else {
+        iter = addNode(ast, ptn->leftChild->rightSibling->leftChild->tokenInfo.tokenPtr->type, depth);
+        addVar(ptn->leftChild, ast, depth);
+        addVar(ptn->leftChild->rightSibling->rightSibling, ast, depth);
+    }
+}
+
+void
+addIterStmt(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, ITERATIVESTMT);
+    // NOTE(ashwin)
+    // in the ast, I'm chosing to assign ITERATIVESTMT to the node as its name 
+    // in place of TK_WHILE because it feels more consistent with the names of
+    // other similar nodes. This can me changed later at any time.
+    astNode** iter = addNode(ast, ITERATIVESTMT, depth);
+    addBoolExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+}
+
+int
+addThenPart(parseTreeNode *ptn, astNode** ast, int depth) {
+    // NOTE(ashwin)
+    // This function is purely to keep the code neat. This can actually be done
+    // inside the body of addCondStmt, but I want to add a node in the ast to
+    // denote the if's body and the else's body separately.
+    
+    astNode** iter = addNode(ast, TK_THEN, depth);
+    addStmt(ptn, iter, depth + 1);
+    if (!verify(ptn->rightSibling, ELSEPART)) {
+        addOtherStmts(ptn, iter, depth + 1);
+        return 1; // indicates that there are other statements before else
+    }
+    return 0; // indicates that there is only one statement in the then part
+}
+
+void
+addElsePart(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, ELSEPART);
+
+    if (ptn->leftChild->rightSibling == NULL) return;
+    // NOTE(ashwin)
+    // This function is purely to keep the code neat. This can actually be done
+    // inside the body of addCondStmt, but I want to add a node in the ast to
+    // denote the if's body and the else's body separately.
+    astNode** iter = addNode(ast, TK_ELSE, depth);
+    addStmt(ptn->leftChild->rightSibling, iter, depth + 1);
+    if (!ptn->leftChild->rightSibling->rightSibling->isTerminal)
+        addOtherStmts(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+}
+
+void
+addCondStmt(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, CONDITIONALSTMT);
+    astNode** iter = addNode(ast, CONDITIONALSTMT, depth);
+    addBoolExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+
+    int moreThanOne = addThenPart(
+        ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling,
+        iter,
+        depth + 1);
+
+    if (moreThanOne)
+        addElsePart(
+            ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling,
+            iter,
+            depth + 1);
+    else
+        addElsePart(
+            ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling,
+            iter,
+            depth + 1);
+}
+
+void
+addIOStmt(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, IOSTMT);
+    astNode** iter;
+    if (ptn->leftChild->tokenInfo.tokenPtr->type == TK_READ) iter = addNode(ast, TK_READ, depth);
+    else iter = addNode(ast, TK_WRITE, depth);
+
+    addVar(ptn->leftChild->rightSibling->rightSibling, iter, depth);
+}
+
+void
 addAssignStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, ASSIGNMENTSTMT);
     astNode** iter = addNode(ast, ASSIGNMENTSTMT, depth);
@@ -468,13 +600,20 @@ addStmt(parseTreeNode *ptn, astNode** ast, int depth) {
                 addAssignStmt(temp, ast, depth);
                 break;
 
-            case ITERATIVESTMT:  
+            case ITERATIVESTMT:
+                addIterStmt(temp, ast, depth);
                 break;
 
-            case IOSTMT:         
+            case CONDITIONALSTMT:
+                addCondStmt(temp, ast, depth);
+                break;
+
+            case IOSTMT:
+                addIOStmt(temp, ast, depth);
                 break;
 
             case FUNCALLSTMT:    
+                addFnCallStmt(temp, ast, depth);
                 break;
 
             default: break;
