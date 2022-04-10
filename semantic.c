@@ -103,16 +103,162 @@ void addOptRet(parseTreeNode *ptn, astNode** ast, int depth) {
     // }
 }
 
+void addActOrRedef(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, ACTUALORREDEFINED);
+    
+    if(ptn->leftChild->tokenInfo.tokenType == TYPEDEFINITION)
+        addTypeDef(ptn->leftChild, ast, depth);
+    
+    else if(ptn->leftChild->tokenInfo.tokenType == DEFINETYPESTMT)
+        addDefTypeStmt(ptn->leftChild, ast, depth);
+}
+
+
+// ------ CHECK LATER --------
+void addRuid(parseTreeNode *ptn, astNode** ast, int depth) {
+    astNode** iter = &(*ast)->leftChild;
+    if (iter == NULL) {
+        *iter = (astNode*) malloc(sizeof(astNode));
+        (*iter)->nodeName = TK_RUID;
+        (*iter)->depth = depth;
+    } else {
+        for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        *iter = (astNode*) malloc(sizeof(astNode));
+        (*iter)->nodeName = TK_RUID;
+        (*iter)->depth = depth;
+    }
+}
+// ------------------------------
+
+void addFieldDefs(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, FIELDDEFINITIONS);
+    astNode** iter = addNode(ast, FIELDDEFINITIONS, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case FIELDDEFINITION:
+                addFieldDef(temp, iter, depth + 1);
+                break;
+
+            case MOREFIELDS:
+                addMoreFields(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
+}
+
+void addFieldDef(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, FIELDDEFINITION);
+    
+    if(ptn->leftChild->rightSibling->tokenInfo.tokenType == FIELDTYPE)
+        addFieldType(ptn->leftChild, ast, depth);
+}
+
+void addFieldType(parseTreeNode *ptn, astNode** ast, int depth) {
+    // ----- ATTRIBUTES ---------------
+}
+
+void addMoreFields(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, MOREFIELDS);
+    astNode** iter = addNode(ast, MOREFIELDS, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case FIELDDEFINITION:
+                addFieldDef(temp, iter, depth + 1);
+                break;
+
+            case MOREFIELDS:
+                addMoreFields(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
+}
+
+void addTypeDef(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, TYPEDEFINITION);
+    astNode** iter = addNode(ast, TYPEDEFINITION, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case TK_RUID:
+                addRuid(temp, iter, depth + 1);
+                break;
+
+            case FIELDDEFINITIONS:
+                addFieldDefs(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
+}
+
 void addTypeDefs(parseTreeNode *ptn, astNode** ast, int depth) { 
     verify(ptn, TYPEDEFINITIONS);
+    astNode** iter = addNode(ast, TYPEDEFINITIONS, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case ACTUALORREDEFINED:
+                addActOrRedef(temp, iter, depth + 1);
+                break;
+
+            case TYPEDEFINITIONS:
+                addTypeDefs(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
 }
 
 void addDecls(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, DECLARATIONS);
+    astNode** iter = addNode(ast, DECLARATIONS, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case DECLARATION:
+                addDecl(temp, iter, depth + 1);
+                break;
+
+            case DECLARATIONS:
+                addDecls(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
 }
 
 void addOtherStmts(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, OTHERSTMTS);
+    astNode** iter = addNode(ast, OTHERSTMTS, depth);
+
+    parseTreeNode* temp = ptn->leftChild;
+    for(; temp != NULL; temp = temp->rightSibling, count++) {
+        switch(temp->tokenInfo.tokenType) {
+            case STMT:
+                addStmt(temp, iter, depth + 1);
+                break;
+
+            case OTHERSTMTS:
+                addOtherStmts(temp, iter, depth + 1);
+                break;
+            
+            default: break;
+        }
+    }
 }
 
 void addRetStmt(parseTreeNode *ptn, astNode** ast, int depth) {
@@ -152,8 +298,66 @@ void addStmts(parseTreeNode *ptn, astNode** ast, int depth) {
     }
 }
 
+void addInpPar(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, INPUT_PAR);
+    //astNode** iter = addNode(ast, INPUT_PAR, depth);
+
+    addParList(iter, ast, depth);
+}
+
+void addOutPar(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, OUTPUT_PAR);
+    //astNode** iter = addNode(ast, OUTPUT_PAR, depth);
+
+    addParList(iter, ast, depth);
+}
+
+void addParList(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, PARAMETER_LIST);
+    astNode** iter = addNode(ast, PARAMETER_LIST, depth);
+
+    for (; iter != NULL; iter = iter->rightSibling) {
+        if (iter->tokenInfo.tokenType == TK_ID) {
+            addId(iter, ast, depth + 1);
+        } else if (iter->tokenInfo.tokenType == REMAINING_LIST) {
+            addRemList(iter, ast, depth + 1);
+        } 
+    }
+}
+
+void addRemList(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, REMAINING_LIST);
+
+    addParList(ptn->leftChild, iter, depth);
+}
+
+void addFunction(parseTreeNode *ptn, astNode** ast, int depth) {
+    verify(ptn, FUNCTION);
+    astNode** iter = addNode(ast, FUNCTION, depth);
+
+    for (; iter != NULL; iter = iter->rightSibling) {
+        if (iter->tokenInfo.tokenType == INPUT_PAR) {
+            addInpPar(iter, ast, depth + 1);
+        } else if (iter->tokenInfo.tokenType == OUTPUT_PAR) {
+            addOutPar(iter, ast, depth + 1);
+        } else if (iter->tokenInfo.tokenType == STMTS) {
+            addStmts(iter, ast, depth + 1);
+        }
+    }
+}
+
 void addOtherFn(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, OTHERFUNCTION);
+    astNode** iter = addNode(ast, OTHERFUNCTION, depth);
+
+    for (; iter != NULL; iter = iter->rightSibling) {
+        if (iter->tokenInfo.tokenType == FUNCTION) {
+            addFunction(iter, ast, depth + 1);
+        } else if (iter->tokenInfo.tokenType == OTHERFUNCTION) {
+            addOtherFn(iter, ast, depth + 1);
+        }
+    }
+    
 }
 
 void addMainFn(parseTreeNode *ptn, astNode** ast, int depth) {
