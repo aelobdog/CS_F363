@@ -327,13 +327,17 @@ void
 addSingOrRecId(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, SINGLEORRECID);
     astNode** iter;
-    if (ptn->leftChild->rightSibling != NULL) iter = addNode(ast, SINGLEORRECID, depth);
+
+    if (ptn->leftChild->rightSibling != NULL) {
+        iter = addNode(ast, SINGLEORRECID, depth);
+        depth++;
+    }
     else iter = ast;
 
-    addId(ptn->leftChild, iter, depth + 1);
+    addId(ptn->leftChild, iter, depth);
     
     if (iter != ast) {
-        addConstVar(ptn->leftChild->rightSibling, iter, depth + 1);
+        addConstVar(ptn->leftChild->rightSibling, iter, depth);
     }
 }
 
@@ -501,8 +505,8 @@ addBoolExp(parseTreeNode *ptn, astNode** ast, int depth) {
         }
     } else {
         iter = addNode(ast, ptn->leftChild->rightSibling->leftChild->tokenInfo.tokenPtr->type, depth);
-        addVar(ptn->leftChild, ast, depth);
-        addVar(ptn->leftChild->rightSibling->rightSibling, ast, depth);
+        addVar(ptn->leftChild, ast, depth + 1);
+        addVar(ptn->leftChild->rightSibling->rightSibling, ast, depth + 1);
     }
 }
 
@@ -515,6 +519,9 @@ addIterStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     // other similar nodes. This can me changed later at any time.
     astNode** iter = addNode(ast, ITERATIVESTMT, depth);
     addBoolExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+    addStmt(ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling, iter, depth + 1);
+    if (! ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling->isTerminal)
+        addOtherStmts(ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling->rightSibling, iter, depth + 1);
 }
 
 int
@@ -526,8 +533,8 @@ addThenPart(parseTreeNode *ptn, astNode** ast, int depth) {
     
     astNode** iter = addNode(ast, TK_THEN, depth);
     addStmt(ptn, iter, depth + 1);
-    if (!verify(ptn->rightSibling, ELSEPART)) {
-        addOtherStmts(ptn, iter, depth + 1);
+    if (ptn->rightSibling->tokenInfo.tokenType != ELSEPART) {
+        addOtherStmts(ptn->rightSibling, iter, depth + 1);
         return 1; // indicates that there are other statements before else
     }
     return 0; // indicates that there is only one statement in the then part
@@ -578,14 +585,14 @@ addIOStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     if (ptn->leftChild->tokenInfo.tokenPtr->type == TK_READ) iter = addNode(ast, TK_READ, depth);
     else iter = addNode(ast, TK_WRITE, depth);
 
-    addVar(ptn->leftChild->rightSibling->rightSibling, iter, depth);
+    addVar(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
 }
 
 void
 addAssignStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, ASSIGNMENTSTMT);
     astNode** iter = addNode(ast, ASSIGNMENTSTMT, depth);
-    addSingOrRecId(ptn->leftChild, iter, depth);
+    addSingOrRecId(ptn->leftChild, iter, depth + 1);
     addArithExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
 }
 

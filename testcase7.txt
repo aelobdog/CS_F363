@@ -1,15 +1,21 @@
 _main
-%    type int: b2;
-%    type real: d2;
-%    b2 <--- 5 / (3 + 1) * 2;
+    type int: b2;
+    type real: d2;
+
+    b2 <--- 5 / (3 + 1) * 2;
+
     read(d2);
-%    [b2] <--- call _random with parameters [d2, b2];
-%    while ((b2 > d2) @@@ (b2 < d2))
-%        read(b2);
-%    endwhile
+
+    [b2] <--- call _random with parameters [d2, b2];
+
+    while ((b2 > d2) @@@ (b2 < d2))
+        read(b2);
+        b2 <--- 3;
+    endwhile
 
     if (~ (b2 < d2)) then
         read(b2);
+        b2 <--- b2 * 2;
     else
         write(b2);
     endif
