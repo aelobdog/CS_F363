@@ -20,13 +20,13 @@
 void
 printAstNode(astNode* node) {
     if(node==NULL) printf("null\n");
-    printf("↪ %s\n", getStringOf(node->nodeName));
+    printf("↪ %s (parent : %s)\n", getStringOf(node->nodeName), node->nodeName != PROGRAM ? getStringOf(node->parent->nodeName) : "ROOT");
 }
 
 int
 verify(parseTreeNode* ptn, termType T) {
-    printf("(%d)", T);
-    printf("verifying %s\n", getStringOf(T));
+    // printf("(%d)", T);
+    // printf("verifying %s\n", getStringOf(T));
     
     int Tch = ptn->isTerminal ? ptn->tokenInfo.tokenPtr->type : ptn->tokenInfo.tokenType;
 
@@ -47,14 +47,13 @@ addNode(astNode** ast, termType T, int depth) {
         *iter = (astNode*) malloc(sizeof(astNode));
         (*iter)->nodeName = T;
         (*iter)->depth = depth;
-
     } else {
         for (; *iter != NULL; iter = &((*iter)->rightSibling));
         *iter = (astNode*) malloc(sizeof(astNode));
         (*iter)->nodeName = T;
         (*iter)->depth = depth;
     }
-
+    (*iter)->parent = *ast;
     return iter;
 }
 
@@ -71,6 +70,7 @@ addId(parseTreeNode *ptn, astNode** ast, int depth) {
         (*iter)->nodeName = TK_ID;
         (*iter)->depth = depth;
     }
+    (*iter)->parent = *ast;
 }
 
 void
@@ -86,6 +86,7 @@ addFieldId(parseTreeNode *ptn, astNode** ast, int depth) {
         (*iter)->nodeName = TK_FIELDID;
         (*iter)->depth = depth;
     }
+    (*iter)->parent = *ast;
 }
 
 void
@@ -176,6 +177,7 @@ addRuid(parseTreeNode *ptn, astNode** ast, int depth) {
         (*iter)->nodeName = TK_RUID;
         (*iter)->depth = depth;
     }
+    (*iter)->parent = *ast;
 }
 
 void
@@ -191,6 +193,7 @@ addFunId(parseTreeNode *ptn, astNode** ast, int depth) {
         (*iter)->nodeName = TK_FUNID;
         (*iter)->depth = depth;
     }
+    (*iter)->parent = *ast;
 }
 
 void
@@ -283,7 +286,7 @@ addDecls(parseTreeNode *ptn, astNode** ast, int depth, int createNode) {
     addDecl(ptn->leftChild, iter, depth + 1);
 
     if (ptn->leftChild->rightSibling != NULL)
-        addDecls(ptn->leftChild->rightSibling, ast, depth, 0);
+        addDecls(ptn->leftChild->rightSibling, iter, depth, 0);
 
     // parseTreeNode* temp = ptn->leftChild;
     // for(; temp != NULL; temp = temp->rightSibling, count++) {
@@ -505,8 +508,8 @@ addBoolExp(parseTreeNode *ptn, astNode** ast, int depth) {
         }
     } else {
         iter = addNode(ast, ptn->leftChild->rightSibling->leftChild->tokenInfo.tokenPtr->type, depth);
-        addVar(ptn->leftChild, ast, depth + 1);
-        addVar(ptn->leftChild->rightSibling->rightSibling, ast, depth + 1);
+        addVar(ptn->leftChild, iter, depth + 1);
+        addVar(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
     }
 }
 
