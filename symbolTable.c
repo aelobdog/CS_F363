@@ -14,8 +14,8 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
                // printf("got %s %s\n", getStringOf(sub->leftChild->nodeName), sub->leftChild->leafInfo->value.idPtr);
                (*cwrap).ctypes[cwrap->length].ruid = sub->leftChild->leafInfo->value.idPtr;
 
+               (*cwrap).ctypes[cwrap->length].typexp = (contypexp*)malloc(sizeof(contypexp));
                contypexp* texp = (*cwrap).ctypes[cwrap->length].typexp;
-               texp = (contypexp*)malloc(sizeof(contypexp));
                int flg = 0;
                for (astNode* fds = sub->leftChild->rightSibling->leftChild; fds != NULL; fds = fds->rightSibling) {
                   if (flg) {
@@ -25,11 +25,11 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
                   }
                   if (flg == 0) flg = 1;
                   if (fds->leafInfo->simple) {
-                     printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, getStringOf(fds->leafInfo->dataType.ttype));
+                     // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, getStringOf(fds->leafInfo->dataType.ttype));
                      texp->type.ttype = fds->leafInfo->dataType.ttype;
                   }
                   else {
-                     printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, fds->leafInfo->dataType.rtype);
+                     // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, fds->leafInfo->dataType.rtype);
                      texp->type.rtype = fds->leafInfo->dataType.rtype;
                   }
                }
@@ -49,6 +49,28 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
             for(; sub != NULL; sub = sub->rightSibling) {
                // printf("got %s %s\n", getStringOf(sub->leftChild->nodeName), sub->leftChild->leafInfo->value.idPtr);
                (*cwrap).ctypes[cwrap->length].ruid = sub->leftChild->leafInfo->value.idPtr;
+               
+               // LOOKOUT FOR COPY_PASTA ERRORS !!!
+               (*cwrap).ctypes[cwrap->length].typexp = (contypexp*)malloc(sizeof(contypexp));
+               contypexp* texp = (*cwrap).ctypes[cwrap->length].typexp;
+               int flg = 0;
+               for (astNode* fds = sub->leftChild->rightSibling->leftChild; fds != NULL; fds = fds->rightSibling) {
+                  if (flg) {
+                     texp->next = (contypexp*)malloc(sizeof(contypexp));
+                     texp = texp->next;
+                     // printf("came here\n");
+                  }
+                  if (flg == 0) flg = 1;
+                  if (fds->leafInfo->simple) {
+                     // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, getStringOf(fds->leafInfo->dataType.ttype));
+                     texp->type.ttype = fds->leafInfo->dataType.ttype;
+                  }
+                  else {
+                     // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, fds->leafInfo->dataType.rtype);
+                     texp->type.rtype = fds->leafInfo->dataType.rtype;
+                  }
+               }
+
                cwrap->length++;
             }
          }
@@ -59,10 +81,10 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
 void printConTypeTable(conTypeWrapper* cwrap) {
    printf("RECORD AND UNION TABLE\n");
    for (int i = 0; i < cwrap->length; i++) {
-      printf("%s ", (*cwrap).ctypes[i].ruid);
+      printf("%s -> ", (*cwrap).ctypes[i].ruid);
       contypexp* texp = (*cwrap).ctypes[i].typexp;
       while (texp != NULL) {
-         printf("%s x ", getStringOf(texp->type.ttype)); // texp->type.rtype == NULL ? getStringOf(texp->type.ttype) : texp->type.rtype);
+         printf("%s x ", (texp->type.ttype >= 0 && texp->type.ttype < TERMTYPESIZE) ? getStringOf(texp->type.ttype) : texp->type.rtype);
          texp = texp->next;
       }
       printf("\n");

@@ -1,13 +1,45 @@
+_ssmN 
+input parameter list [int d5];
+    record #ass
+		type real: su; 
+		type #fuckme: ics;
+	endrecord
+
+    record #gas
+		type real: su; 
+		type #gogobebe: ics;
+	endrecord
+
+    return;
+end
+
+_sumN 
+input parameter list [int d5]
+output parameter list [int b3];
+    record #asds
+		type real: su; 
+		type real: ics;
+	endrecord
+
+    record #gras
+		type real: su; 
+		type real: ics;
+	endrecord
+
+    return;
+end
+
 _main
     record #marks
 		type real : maths; 
-		type #point: physics; 
+		type real: physics; 
+		type real: chemistry;
 	endrecord
 
 %    type int: b2;
 %    type real: d2 : global;
 %
-%     b5.ad.ac <--- 5.55 / (3 + 1) * 2;
+     b5 <--- 5.55 / (3 + 1) * 2;
 %
 %    read(d2);
 %
