@@ -51,6 +51,9 @@ int main (int argc, char* argv[]) {
         printf("\t3. Print the AST (Preorder Traversal)\n");
         printf("\t4. Display memory allocation for parse tree and AST\n");
         printf("\t5. Print the symbol tables and their contents\n");
+        printf("\t6. Print global variables\n");
+        printf("\t7. Print activation record sizes\n");
+        printf("\t8. Print record types and sizes\n");
         printf("Choice : ");
         scanf("%d", &choice);
         switch (choice) {

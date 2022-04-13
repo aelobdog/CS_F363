@@ -27,10 +27,12 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
                   if (fds->leafInfo->simple) {
                      // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, getStringOf(fds->leafInfo->dataType.ttype));
                      texp->type.ttype = fds->leafInfo->dataType.ttype;
+                     (*cwrap).ctypes[cwrap->length].typewidth += texp->type.ttype == TK_INT ? 2 : 4;
                   }
                   else {
                      // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, fds->leafInfo->dataType.rtype);
                      texp->type.rtype = fds->leafInfo->dataType.rtype;
+                     // LOOK AT WHAT TO DO IN THIS CASE
                   }
                }
                cwrap->length++;
@@ -64,10 +66,12 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
                   if (fds->leafInfo->simple) {
                      // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, getStringOf(fds->leafInfo->dataType.ttype));
                      texp->type.ttype = fds->leafInfo->dataType.ttype;
+                     (*cwrap).ctypes[cwrap->length].typewidth += texp->type.ttype == TK_INT ? 2 : 4;
                   }
                   else {
                      // printf("qweqwe %s, %s, %s\n", getStringOf(fds->nodeName), fds->leafInfo->value.idPtr, fds->leafInfo->dataType.rtype);
                      texp->type.rtype = fds->leafInfo->dataType.rtype;
+                     // LOOK AT WHAT TO DO IN THIS CASE
                   }
                }
 
@@ -81,13 +85,15 @@ void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap) {
 void printConTypeTable(conTypeWrapper* cwrap) {
    printf("RECORD AND UNION TABLE\n");
    for (int i = 0; i < cwrap->length; i++) {
-      printf("%s -> ", (*cwrap).ctypes[i].ruid);
+      printf("%s -> <", (*cwrap).ctypes[i].ruid);
       contypexp* texp = (*cwrap).ctypes[i].typexp;
       while (texp != NULL) {
-         printf("%s x ", (texp->type.ttype >= 0 && texp->type.ttype < TERMTYPESIZE) ? getStringOf(texp->type.ttype) : texp->type.rtype);
+         printf("%s", (texp->type.ttype >= 0 && texp->type.ttype < TERMTYPESIZE) ? getStringOf(texp->type.ttype) : texp->type.rtype);
          texp = texp->next;
+         if (texp != NULL) printf(", ");
+         else printf(">");
       }
-      printf("\n");
+      printf(" [%d]\n", (*cwrap).ctypes[i].typewidth);  
    }
 }
 
