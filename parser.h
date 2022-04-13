@@ -56,6 +56,6 @@ void fprintParseTree(parseTreeNode*);
 void addTerminalToParseTreeAt(parseTreeNode**, int, token*);
 void addNonTerminalToParseTreeAt(parseTreeNode**, int, termType);
 
-long getpTreeSize(parseTreeNode*);
+void getpTreeSize(parseTreeNode*, long*);
 
 #endif

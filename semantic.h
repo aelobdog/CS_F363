@@ -2,11 +2,14 @@
 #define SEMANTIC_h
 #include "semanticDef.h"
 
+void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap);
+void printConTypeTable(conTypeWrapper* cwrap);
+void printSymbolTable(symbolTable* sTable);
 // ----------------------------------------------------------------------------
 void printAST(astNode* root);
 void printAstNode(astNode* root);
 
-long getAstSize(astNode*);
+void getAstSize(astNode*, long*, long*);
 astNode* makeAST(parseTreeNode*, int);
 astNode** addNode(astNode** ast, termType T, int depth);
 void addElsePart(parseTreeNode *ptn, astNode** ast, int depth);
@@ -34,7 +37,7 @@ void addConstVar(parseTreeNode *ptn, astNode** ast, int depth);
 void addAssignStmt(parseTreeNode *ptn, astNode** ast, int depth);
 void addStmt(parseTreeNode *ptn, astNode** ast, int depth);
 void addSingOrRecId(parseTreeNode *ptn, astNode** ast, int depth);
-void addFieldId(parseTreeNode *ptn, astNode** ast, int depth);
+void addFieldId(parseTreeNode *ptn, astNode** ast, int depth, termType type, char* name);
 void addInpPar(parseTreeNode *ptn, astNode** ast, int depth);
 void addOutPar(parseTreeNode *ptn, astNode** ast, int depth);
 void addRemList(parseTreeNode *ptn, astNode** ast, int depth);
@@ -63,7 +66,7 @@ void addDecl(parseTreeNode *ptn, astNode** ast, int depth);
 void mkProgram(parseTreeNode *ptn, astNode** ast);
 // ----------------------------------------------------------------------------
 
-symbolTable makeTable(astNode*, symbolTable* parentTable);
+// symbolTable makeTable(astNode*, symbolTable* parentTable);
 
 // ----------------------------------------------------------------------------
 

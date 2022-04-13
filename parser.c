@@ -741,24 +741,37 @@ void printParseTree(parseTreeNode* node) {
    }
 }
 
-long getpTreeSize(parseTreeNode* node) {
-   if (node->isTerminal) {
-      return 1 + ((node->rightSibling != NULL) ? getpTreeSize(node->rightSibling) : 0);
-   }
+// long getpTreeSize(parseTreeNode* node) {
+//    if (node->isTerminal) {
+//       return 1 + ((node->rightSibling != NULL) ? getpTreeSize(node->rightSibling) : 0);
+//    }
    
-   parseTreeNode* sib = node;
-   long pTreeNumNodes = 1;
-   int count = 0;
+//    parseTreeNode* sib = node;
+//    long pTreeNumNodes = 1;
+//    int count = 0;
 
-   for (; sib != NULL; sib = sib->rightSibling, count ++) {
-      if (count > 0) pTreeNumNodes += getpTreeSize(sib);
+//    for (; sib != NULL; sib = sib->rightSibling, count ++) {
+//       if (count > 0) pTreeNumNodes += getpTreeSize(sib);
 
-      if (sib->leftChild != NULL) {
-            // printParseTree(sib);
-            // printf("\n\n");
-            pTreeNumNodes += getpTreeSize(sib->leftChild);
-      }
-   }
-   // pTreeSize = pTreeNumNodes*sizeof(parseTreeNode);
-   return pTreeNumNodes;
+//       if (sib->leftChild != NULL) {
+//             pTreeNumNodes += getpTreeSize(sib->leftChild);
+//       }
+//    }
+//    // pTreeSize = pTreeNumNodes*sizeof(parseTreeNode);
+//    return pTreeNumNodes;
+// }
+
+void getpTreeSize(parseTreeNode* node, long* nodes) {
+    if(node->leftChild != NULL) {
+        getpTreeSize(node->leftChild, nodes);
+        (*nodes) += 1;
+        node = node->leftChild->rightSibling;
+        while (node != NULL) {
+            getpTreeSize(node, nodes);
+            node = node->rightSibling;
+        }
+        return;
+    }
+
+    (*nodes) += 1;
 }

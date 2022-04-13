@@ -49,17 +49,50 @@ typedef struct symbolTable {
    int tableOffset;
 } symbolTable;
 
-typedef struct astNode {
-   termType nodeName;
-   tokenValue value;
-   termType dataType;
+typedef union Type {
+      termType ttype;
+      char* rtype;
+} Type;
+
+typedef struct contypexp {
+   Type type;
+   struct contypexp* next;
+} contypexp;
+
+typedef struct constructedTypes {
+   termType ctype;
    char* ruid;
-   signed char isGlobal; // 1 = true, 0 = false
-   
+   char* aliases[5];
+   contypexp* typexp;
+   long typewidth;
+} constructedTypes;
+
+typedef struct conTypeWrapper {
+   constructedTypes ctypes[50];
+   int length;
+} conTypeWrapper;
+
+typedef struct astNode {   
    struct astNode* parent;
    struct astNode* rightSibling;
    struct astNode* leftChild;
+   struct astLeafInfo* leafInfo;
+   termType nodeName;
    short depth;
 } astNode;
+
+typedef struct astLeafInfo {
+   tokenValue value;
+   // termType dataType;
+   // char* ruid;
+   int simple; // 1 = true, 0 = false
+   Type dataType;
+   int isGlobal; // 1 = true, 0 = false
+} astLeafInfo;
+
+typedef struct returnTup {
+   int nodes;
+   long size;
+} returnTup;
 
 #endif

@@ -1,8 +1,8 @@
-driver: lexer.h parser.h lexerDef.h parserDef.h lexer.c parser.c driver.c
-	gcc -o stage1exe lexer.c parser.c semantic.c driver.c -ggdb
+driver: lexer.h parser.h lexerDef.h parserDef.h lexer.c parser.c driver.c semantic.c symbolTable.c 
+	gcc -o stage1exe lexer.c parser.c semantic.c symbolTable.c driver.c -ggdb
 
-driver7: lexer.h parser.h lexerDef.h parserDef.h lexer.c parser.c driver.c
-	gcc-7 -o stage1exe lexer.c parser.c semantic.c driver.c -ggdb
+driver7: lexer.h parser.h lexerDef.h parserDef.h lexer.c parser.c driver.c semantic.c symbolTable.c
+	gcc-7 -o stage1exe lexer.c parser.c semantic.c symbolTable.c driver.c -ggdb
 
 # parser:
 # 	gcc -o bin/parser src/lexer/lexer.c src/parser/parser.c parsertest.c -ggdb
