@@ -48,12 +48,14 @@ parseTreeNode* buildParseTreeNodeFromToken(token*, int);
 void printParseTreeNode(parseTreeNode*);
 void printParseTree(parseTreeNode*);
 
-// helperFunctions to write the parse treeInorder to a file
-void fprintParseTreeNode(parseTreeNode*, FILE*);
-void fprintParseTree(parseTreeNode*, FILE*);
+// helperFunctions to write the parse treeInorder to the console
+void fprintParseTreeNode(parseTreeNode*);
+void fprintParseTree(parseTreeNode*);
 
 // helper functions to help in adding nodes to the parse tree
 void addTerminalToParseTreeAt(parseTreeNode**, int, token*);
 void addNonTerminalToParseTreeAt(parseTreeNode**, int, termType);
+
+long getpTreeSize(parseTreeNode*);
 
 #endif

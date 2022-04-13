@@ -33,31 +33,26 @@ int main (int argc, char* argv[]) {
     parseTable pTable;
     parseStack pStack;
     hashTableEntry globalHashTable[HASHTABLESIZE];
+    parseTreeNode* pTree;
+    astNode* ast;
     clock_t start_time, end_time;
     double total_CPU_time, total_CPU_time_in_seconds;
     struct timeval t1, t2;
 
-    // choice = 100; // just so that the while runs atleast one time
-    choice = 3;
+    choice = 100; // just so that the while runs atleast one time
 
     while(choice) {
-        // printf("Options:\n");
-        // printf("\t0. Exit\n");
-        // printf("\t1. Print the comment free code\n");
-        // printf("\t2. Print the tokens\n");
-        // printf("\t3. Parse source code and print the parse tree\n");
-        // printf("\t4. Print time taken for stage 1 (lexing and parsing)\n");
-        // printf("Choice : ");
-        // scanf("%d", &choice);
+        printf("Options:\n");
+        printf("\t0. Exit\n");
+        printf("\t1. Print the tokens\n");
+        printf("\t2. Parse source code and print the parse tree on console\n");
+        printf("\t3. Print the AST (Preorder Traversal)\n");
+        printf("Choice : ");
+        scanf("%d", &choice);
         switch (choice) {
             case 0: break;
 
             case 1:
-                consolePrintNoComments(filename);
-                printf("\n");
-                break;
-
-            case 2:
                 b.source = fopen(filename, "r");
                 if (! b.source) perror("FILE READ ERROR : ");
 
@@ -74,75 +69,119 @@ int main (int argc, char* argv[]) {
                 token T;
                 T = getToken(&b, globalHashTable);
                 while (T.type != DOLLAR) {
-                    prettyToken(T);
-                    
+                    prettyToken(T);   
                     T = getToken(&b, globalHashTable);
                 }
                 // getAndPrintTokenList(&b, globalHashTable, tList.list);
                 fclose(b.source);
                 break;
 
-            case 3: 
-                // if (argc != 3) { printf("USAGE : ./stage1exe SOURCE_FILE PARSETREE_OUTFILE\n"); continue; }
+            case 2:
                 memset(&pTable, 0, sizeof(pTable));
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
                 g = readGram();
-                //printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
+                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
                 computeFirsts(&g, &ff);
-                //printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
+                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
                 computeFollows(&g, &ff);
-                //printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
+                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
                 populateParseTable(&pTable, &g, &ff);
-                //printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
+                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
                 initStack(&pStack);
                 initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                //printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
-                parseTreeNode* pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
-                //printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
-                //printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
+                pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
+                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
+                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                fprintParseTree(pTree);
+                printf("\n\n");
                 printParseTree(pTree);
-                printf("\n\n");
-                //FILE* file = fopen(argv[2], "w");
-                //fprintParseTree(pTree, file);
-                //fclose(file);
-                //fclose(b.source);
-                //printf("PARSE TREE WRITTEN TO FILE: %s\n",argv[2]);
-
-                // modifiying this part ----------
-                astNode* ast = makeAST(pTree, 0);// mkAST(pTree, 0);
-                // printAstNode(ast);
-                // printAstNode(ast->leftChild);
-                printf("\n\n");
-                printAST(ast);
-                // -------------------------------
-                choice = 0;
-                exit(0);
+                fclose(b.source);
+                break;
             
-            case 4: 
+            case 3: 
                 memset(&pTable, 0, sizeof(pTable));
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
-                start_time = clock();
-                gettimeofday(&t1, NULL);
-                    g = readGram();
-                    computeFirsts(&g, &ff);
-                    computeFollows(&g, &ff);
-                    populateParseTable(&pTable, &g, &ff);
-                    initStack(&pStack);
-                    initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                    predictiveParse(&pStack, &pTable, &tList, &ff);
-                gettimeofday(&t2, NULL);
-                end_time = clock();
-                total_CPU_time = (double) (end_time - start_time);
-                total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
-                printf("Total CPU time : %lf\n", total_CPU_time);
-                printf("Total CPU time in seconds : %lf\n", total_CPU_time_in_seconds);
-                double time = (t2.tv_usec - t1.tv_usec);
-                printf("Total time taken [using gettimeofday() from sys/time.h] : %lfms (%lfs)\n", time/1000, time/1000000);
+                g = readGram();
+                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
+                computeFirsts(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
+                computeFollows(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
+                populateParseTable(&pTable, &g, &ff);
+                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
+                initStack(&pStack);
+                initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
+                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
+                pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
+                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
+                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                // fprintParseTree(pTree);
+                ast = makeAST(pTree, 0);
+                printf("[COMPLETED] : AST GENERATED.\n\n");
+                printf("AST TRAVERSAL USING [ PREORDER ] TRAVERSAL\n");
+                printAST(ast);
+                fclose(b.source);
                 break;
+
+            case 4:
+                memset(&pTable, 0, sizeof(pTable));
+                memset(&ff, 0, sizeof(ff));
+                memset(&pStack, 0, sizeof(pStack));
+                memset(&tList, 0, sizeof(tList));
+                g = readGram();
+                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
+                computeFirsts(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
+                computeFollows(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
+                populateParseTable(&pTable, &g, &ff);
+                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
+                initStack(&pStack);
+                initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
+                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
+                pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
+                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
+                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                ast = makeAST(pTree, 0);
+                long pNodes = getpTreeSize(pTree);
+                long pSize = pNodes * sizeof(parseTreeNode);
+                printf("Parse tree Number of nodes = %ld Allocated Memory = %ld\n", pNodes, pSize);
+                long aNodes = getAstSize(ast);
+                long aSize = aNodes * sizeof(astNode);
+                printf("AST Number of nodes = %ld Allocated Memory = %ld\n", aNodes, aSize);
+
+
+                // long aSize = getAstSize(ast);
+                printf("Compression percentage = ((%ld ‐ %ld) / %ld) * 100 = %lf\n\n", pSize, aSize, pSize, ((pSize - aSize) / (double)pSize) * 100);
+                break;
+
+                // memset(&pTable, 0, sizeof(pTable));
+                // memset(&ff, 0, sizeof(ff));
+                // memset(&pStack, 0, sizeof(pStack));
+                // memset(&tList, 0, sizeof(tList));
+                // start_time = clock();
+                // gettimeofday(&t1, NULL);
+                //     g = readGram();
+                //     computeFirsts(&g, &ff);
+                //     computeFollows(&g, &ff);
+                //     populateParseTable(&pTable, &g, &ff);
+                //     initStack(&pStack);
+                //     initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
+                //     predictiveParse(&pStack, &pTable, &tList, &ff);
+                // gettimeofday(&t2, NULL);
+                // end_time = clock();
+                // total_CPU_time = (double) (end_time - start_time);
+                // total_CPU_time_in_seconds = total_CPU_time / CLOCKS_PER_SEC;
+                // printf("Total CPU time : %lf\n", total_CPU_time);
+                // printf("Total CPU time in seconds : %lf\n", total_CPU_time_in_seconds);
+                // double time = (t2.tv_usec - t1.tv_usec);
+                // printf("Total time taken [using gettimeofday() from sys/time.h] : %lfms (%lfs)\n", time/1000, time/1000000);
+                // break;
 
             default: printf("Please enter a value between 0-4");
                 continue;

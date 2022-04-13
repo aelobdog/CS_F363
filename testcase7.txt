@@ -1,6 +1,6 @@
 _main
-    type int: b2;
-    type real: d2 : global;
+%    type int: b2;
+%    type real: d2 : global;
 %
 %    b2 <--- 5.55 / (3 + 1) * 2;
 %
@@ -19,6 +19,6 @@ _main
 %    else
 %        write(b2);
 %    endif
-
+    
     return [b2, d2];
 end

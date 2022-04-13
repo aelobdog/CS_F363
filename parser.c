@@ -687,43 +687,43 @@ void printParseTreeNode(parseTreeNode* pN) {
    else printf("> %s [parent : %s]\n", getStringOf(pN->tokenInfo.tokenType), pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : " ");
 }
 
-void fprintParseTreeNode(parseTreeNode* pN, FILE* file) {
+void fprintParseTreeNode(parseTreeNode* pN) {
    if (pN->isTerminal) {
       if (pN->tokenInfo.tokenPtr->type == TK_FUNID || 
           pN->tokenInfo.tokenPtr->type == TK_ID || 
           pN->tokenInfo.tokenPtr->type == TK_FIELDID ||
           pN->tokenInfo.tokenPtr->type == TK_RUID) {
-             fprintf(file, "lexeme\t%s\tline no. %3ld\t%s\t", pN->tokenInfo.tokenPtr->value.idPtr, pN->tokenInfo.tokenPtr->line, tokenTypeName(pN->tokenInfo.tokenPtr->type));
-      } else fprintf(file, "lexeme\t%s\tline no. %3ld\t%s\t", tokenTypeValue(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line, tokenTypeName(pN->tokenInfo.tokenPtr->type));
+             printf("lexeme\t%s\tline no. %3ld\t%s\t", pN->tokenInfo.tokenPtr->value.idPtr, pN->tokenInfo.tokenPtr->line, tokenTypeName(pN->tokenInfo.tokenPtr->type));
+      } else printf("lexeme\t%s\tline no. %3ld\t%s\t", tokenTypeValue(pN->tokenInfo.tokenPtr->type), pN->tokenInfo.tokenPtr->line, tokenTypeName(pN->tokenInfo.tokenPtr->type));
       if (pN->tokenInfo.tokenPtr->type == TK_RNUM || 
           pN->tokenInfo.tokenPtr->type == TK_NUM) {
          //  pN->tokenInfo.tokenPtr->type == TK_FUNID || 
          //  pN->tokenInfo.tokenPtr->type == TK_ID || 
          //  pN->tokenInfo.tokenPtr->type == TK_FIELDID ||
          //  pN->tokenInfo.tokenPtr->type == TK_RUID) {
-         fprintf(file, "%s\t", pN->tokenInfo.tokenPtr->value.idPtr);
+         printf("%s\t", pN->tokenInfo.tokenPtr->value.idPtr);
       }
-      fprintf(file, "%s\t", getStringOf(pN->parent->tokenInfo.tokenType));
-      fprintf(file, "yes\n");
+      printf("%s\t", getStringOf(pN->parent->tokenInfo.tokenType));
+      printf("yes\n");
    } else {
-      fprintf(file, "lexeme\t----\t");
+      printf("lexeme\t----\t");
       // printf("%s\t", getStringOf(pN->parent->tokenInfo.tokenPtr->type));
-      fprintf(file, "%s\t", pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : "ROOT");
-      fprintf(file, "no\t%s\t\n", getStringOf(pN->tokenInfo.tokenType));
+      printf("%s\t", pN->parent ? getStringOf(pN->parent->tokenInfo.tokenType) : "ROOT");
+      printf("no\t%s\t\n", getStringOf(pN->tokenInfo.tokenType));
    }
 }
 
-void fprintParseTree(parseTreeNode* pN, FILE* file) {
+void fprintParseTree(parseTreeNode* pN) {
    if (pN->leftChild != NULL) {
-      fprintParseTree(pN->leftChild, file);
-      fprintParseTreeNode(pN, file);
+      fprintParseTree(pN->leftChild);
+      fprintParseTreeNode(pN);
       
       parseTreeNode* sib = pN->leftChild->rightSibling;
       for (; sib != NULL; sib = sib->rightSibling) {
-         fprintParseTree(sib, file);
+         fprintParseTree(sib);
       }
    } else {
-      fprintParseTreeNode(pN, file);
+      fprintParseTreeNode(pN);
    }
 }
 
@@ -739,4 +739,26 @@ void printParseTree(parseTreeNode* node) {
          printParseTree(sib->leftChild);
       }
    }
+}
+
+long getpTreeSize(parseTreeNode* node) {
+   if (node->isTerminal) {
+      return 1 + ((node->rightSibling != NULL) ? getpTreeSize(node->rightSibling) : 0);
+   }
+   
+   parseTreeNode* sib = node;
+   long pTreeNumNodes = 1;
+   int count = 0;
+
+   for (; sib != NULL; sib = sib->rightSibling, count ++) {
+      if (count > 0) pTreeNumNodes += getpTreeSize(sib);
+
+      if (sib->leftChild != NULL) {
+            // printParseTree(sib);
+            // printf("\n\n");
+            pTreeNumNodes += getpTreeSize(sib->leftChild);
+      }
+   }
+   // pTreeSize = pTreeNumNodes*sizeof(parseTreeNode);
+   return pTreeNumNodes;
 }

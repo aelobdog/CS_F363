@@ -6,6 +6,7 @@
 void printAST(astNode* root);
 void printAstNode(astNode* root);
 
+long getAstSize(astNode*);
 astNode* makeAST(parseTreeNode*, int);
 astNode** addNode(astNode** ast, termType T, int depth);
 void addElsePart(parseTreeNode *ptn, astNode** ast, int depth);

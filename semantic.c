@@ -33,12 +33,9 @@ printAstNode(astNode* node) {
 
         case TK_ID:
             // printf("%d\n", node->dataType);
-            printf("%s [%s|%s|%s|%s] (parent : %s)\n",
+            printf("%s [id = %s] (parent : %s)\n",
                 getStringOf(node->nodeName), 
                 node->value.idPtr,
-                (node->dataType == -1) ? "~" : getStringOf(node->dataType),
-                node->ruid == NULL ? "~" : node->ruid,
-                node->isGlobal == 1 ? "global" : node->isGlobal == 0 ? "local" : "~",
                 getStringOf(node->parent->nodeName));
         break;
 
@@ -809,3 +806,40 @@ printAST(astNode* node) {
         }
     }
 }
+
+long getAstSize(astNode* node) {
+    if(node->nodeName < PROGRAM) {
+        return 1 + ((node->rightSibling != NULL) ? getAstSize(node->rightSibling) : 0);
+    }
+
+    astNode* sib = node;
+    long astNumNodes = 1;
+    int count = 0;
+    for (int j = 0; sib != NULL; j ++, sib = sib->rightSibling, count++) {
+        if (count > 0) astNumNodes += getAstSize(sib);
+        if (sib->leftChild != NULL) {
+            astNumNodes += getAstSize(sib->leftChild);
+        }
+    }
+    return astNumNodes;
+}
+
+// long getpTreeSize(parseTreeNode* node) {
+//    if (node->isTerminal) {
+//       return 1 + ((node->rightSibling != NULL) ? getpTreeSize(node->rightSibling) : 0);
+//    }
+   
+//    parseTreeNode* sib = node;
+//    long pTreeNumNodes = 1;
+//    int count = 0;
+
+//    for (; sib != NULL; sib = sib->rightSibling, count ++) {
+//       if (count > 0) pTreeNumNodes += getpTreeSize(sib);
+
+//       if (sib->leftChild != NULL) {
+//             pTreeNumNodes += getpTreeSize(sib->leftChild);
+//       }
+//    }
+//    // pTreeSize = pTreeNumNodes*sizeof(parseTreeNode);
+//    return pTreeNumNodes;
+// }

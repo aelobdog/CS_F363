@@ -49,16 +49,17 @@ typedef struct symbolTable {
    int tableOffset;
 } symbolTable;
 
-typedef struct astNode{
+typedef struct astNode {
    termType nodeName;
    tokenValue value;
    termType dataType;
    char* ruid;
-   int isGlobal; // 1 = true, 0 = false
+   signed char isGlobal; // 1 = true, 0 = false
+   
    struct astNode* parent;
    struct astNode* rightSibling;
    struct astNode* leftChild;
-   int depth;
+   short depth;
 } astNode;
 
 #endif
