@@ -4,7 +4,9 @@
 
 void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap);
 void printConTypeTable(conTypeWrapper* cwrap);
+symbolTable* makeSymbolTable(astNode* ast);
 void printSymbolTable(symbolTable* sTable);
+void makeSymbolTables(astNode* ast);
 // ----------------------------------------------------------------------------
 void printAST(astNode* root);
 void printAstNode(astNode* root);

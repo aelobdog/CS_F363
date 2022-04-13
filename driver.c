@@ -191,6 +191,30 @@ int main (int argc, char* argv[]) {
                 // printf("Total time taken [using gettimeofday() from sys/time.h] : %lfms (%lfs)\n", time/1000, time/1000000);
                 // break;
 
+            case 5:
+                memset(&pTable, 0, sizeof(pTable));
+                memset(&ff, 0, sizeof(ff));
+                memset(&pStack, 0, sizeof(pStack));
+                memset(&tList, 0, sizeof(tList));
+                g = readGram();
+                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
+                computeFirsts(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
+                computeFollows(&g, &ff);
+                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
+                populateParseTable(&pTable, &g, &ff);
+                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
+                initStack(&pStack);
+                initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
+                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
+                pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
+                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
+                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
+                ast = makeAST(pTree, 0);
+                makeSymbolTables(ast);
+                break;
+
+
             case 8:
                 memset(&pTable, 0, sizeof(pTable));
                 memset(&ff, 0, sizeof(ff));

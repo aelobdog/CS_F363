@@ -93,9 +93,60 @@ void printConTypeTable(conTypeWrapper* cwrap) {
          if (texp != NULL) printf(", ");
          else printf(">");
       }
-      printf(" [%d]\n", (*cwrap).ctypes[i].typewidth);  
+      printf(" [%ld]\n", (*cwrap).ctypes[i].typewidth);  
    }
 }
+
+void makeSymbolTables(astNode* ast) {
+   astNode* iter = ast->leftChild;
+   for(; iter!=NULL; iter->rightSibling) {
+      if(iter->nodeName == OTHERFUNCTION) {
+         makeSymbolTable(iter->leftChild->leftChild); //calling on funid
+      }
+   
+      else if(iter->nodeName == MAINFUNCTION) {
+         makeSymbolTable(iter); //calling on main
+      }
+   }
+}
+
+symbolTable* makeSymbolTable(astNode* ast) {
+   //initialize symboltable
+
+
+   if(ast->nodeName == MAINFUNCTION) {
+      //set scopename to main
+
+      astNode* sib = ast->leftChild->leftChild;
+      if(sib->nodeName == TYPEDEFINITIONS) sib = sib->rightSibling; //sib is now at declarations
+      if(sib->nodeName == DECLARATIONS) {
+         //printf("HERE : %s\n", getStringOf(sib->nodeName));
+         sib = sib->leftChild; //sib is now at first declaration
+         for(; sib!=NULL; sib = sib->rightSibling) { //iterating over declarations
+            //make symboltable entries and add
+         }
+      } else return NULL;
+   }
+
+   else if(ast->nodeName == TK_FUNID) {
+      //set scopename to funid
+      //printf("FUNC NAME : %s\n", ast->leafInfo->value.idPtr);
+      astNode* sib = ast->rightSibling->rightSibling;
+      if(sib->nodeName == PARAMETER_LIST) sib = sib->rightSibling; //sib is now at stmts
+      //printf("HERE : %s\n", getStringOf(sib->nodeName));
+      sib = sib->leftChild;
+      if(sib->nodeName == TYPEDEFINITIONS) sib = sib->rightSibling; //sib may now be at declarations (there may be no declarations)
+      if(sib->nodeName == DECLARATIONS) {
+         //printf("HERE : %s\n", getStringOf(sib->nodeName));
+         sib = sib->leftChild; //sib is now at first declaration
+         for(; sib!=NULL; sib = sib->rightSibling) { //iterating over declarations
+            //make symboltable entries and add
+         }
+      } else return NULL;
+   }
+}
+
+
 
 void printSymbolTable(symbolTable* table) {
 

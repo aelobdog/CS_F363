@@ -36,8 +36,8 @@ _main
 		type real: chemistry;
 	endrecord
 
-%    type int: b2;
-%    type real: d2 : global;
+   type int: b2;
+   type real: d2 : global;
 %
      b5 <--- 5.55 / (3 + 1) * 2;
 %
