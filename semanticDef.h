@@ -1,14 +1,8 @@
 #ifndef SEMANTICDEF_H
 #define SEMANTICDEF_H
 
+#include "lexerDef.h"
 #include "parserDef.h"
-
-typedef enum {
-   INTEGER,
-   REAL,
-   RECORD,
-   UNION
-} dataTypeTag;
 
 typedef enum {
    LOCAL,
@@ -21,9 +15,9 @@ typedef enum {
    OUTPUTPAR
 } usage;
 
-typedef struct {
-   dataTypeTag tag;
-   struct dataTypeExp* type;
+typedef struct dataTypeExp {
+   termType tag;
+   char* ruid;
 } dataTypeExp;
 
 typedef struct typeName {
@@ -43,8 +37,8 @@ typedef struct symbolTableEntry {
 } symbolTableEntry;
 
 typedef struct symbolTable {
-   struct symbolTable* parentTable;
-   char* scopeName; // could be a function name, or identifier for scopes of if, while, etc...
+   // struct symbolTable* parentTable;
+   char* scopeName; 
    symbolTableEntry* symbolTableEntries;
    int tableOffset;
 } symbolTable;
@@ -62,6 +56,7 @@ typedef struct contypexp {
 typedef struct constructedTypes {
    termType ctype;
    char* ruid;
+   int numalias;
    char* aliases[5];
    contypexp* typexp;
    long typewidth;

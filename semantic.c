@@ -93,15 +93,19 @@ addId(parseTreeNode *ptn, astNode** ast, int depth, termType datatype, char* rui
     (*iter)->leafInfo = (astLeafInfo*)malloc(sizeof(astLeafInfo));
     (*iter)->leafInfo->value.idPtr = strdup(ptn->tokenInfo.tokenPtr->value.idPtr);
     
-    if (datatype != -1) {
+    // printf("%d ==> %s\n", datatype, ruid);
+
+    if (datatype == TK_INT || datatype == TK_REAL) {
         (*iter)->leafInfo->dataType.ttype = datatype;
-        // (*iter)->leafInfo->ruid = (ruid != NULL) ? strdup(ruid) : NULL;
+        (*iter)->leafInfo->simple = 1;
         (*iter)->leafInfo->isGlobal = isGlobal;
-    } else if (ruid != NULL) {
+    } else if (datatype == TK_RECORD || datatype == TK_UNION || ruid != NULL) {
         (*iter)->leafInfo->dataType.rtype = ruid;
-        (*iter)->leafInfo->isGlobal = -1;
+        (*iter)->leafInfo->isGlobal = isGlobal;
+        (*iter)->leafInfo->simple = 0;
     } else {
         (*iter)->leafInfo->isGlobal = -1;
+        (*iter)->leafInfo->simple = -1;
     }
 }
 
@@ -186,10 +190,9 @@ addOptRet(parseTreeNode *ptn, astNode** ast, int depth) {
 void
 addDefTypeStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, DEFINETYPESTMT);
-    // dont really know what to do with this... definetypestmt does not
-    // seem like something that should appear in the AST, but seems more
-    // like something to be used while typechecking... So leaving it blank
-    // for now
+    astNode** iter = addNode(ast, DEFINETYPESTMT, depth);
+    addRuid(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
+    addRuid(ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling, iter, depth + 1);
 }
 
 void
@@ -258,7 +261,6 @@ addFieldDef(parseTreeNode *ptn, astNode** ast, int depth) {
     termType type;
     char* ruid = NULL;
     if(! ptn->leftChild->rightSibling->leftChild->isTerminal) {
-        printf("not terminal\n");
         type = ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type;
     } else {
         ruid = strdup(ptn->leftChild->rightSibling->leftChild->tokenInfo.tokenPtr->value.idPtr);
@@ -285,7 +287,6 @@ addTypeDef(parseTreeNode *ptn, astNode** ast, int depth) {
 
 void
 addTypeDefs(parseTreeNode *ptn, astNode** ast, int depth, int createNode) { 
-    printf("hello!");
     verify(ptn, TYPEDEFINITIONS);
     astNode** iter;
 
@@ -709,10 +710,8 @@ addRetStmt(parseTreeNode *ptn, astNode** ast, int depth) {
 
 void
 addStmts(parseTreeNode *ptn, astNode** ast, int depth) {
-    printf("before send %d\n", ptn->tokenInfo.tokenType);
     verify(ptn, STMTS);
     astNode** iter = addNode(ast, STMTS, depth);
-    printf("after verify of statement\n");
     int count = 0;
     parseTreeNode* temp = ptn->leftChild;
     for(; temp != NULL; temp = temp->rightSibling, count++) {

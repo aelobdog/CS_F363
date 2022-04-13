@@ -1,6 +1,8 @@
 // Group number 13
 // Ashwin Kiran Godbole 2018B5A70423P
 // Samarth Krishna Murthy 2018B2A70362P
+//
+// TODO: MEMSET all the arrays and shit at the beginning in each case
 
 #include <stdio.h>
 #include <time.h>
@@ -34,8 +36,11 @@ int main (int argc, char* argv[]) {
     parseStack pStack;
     hashTableEntry globalHashTable[HASHTABLESIZE];
     parseTreeNode* pTree;
+    symbolTable globalTable;
+    symbolTable localTables[50];
     conTypeWrapper cwrap;
     cwrap.length = 0;
+    for (int i = 0; i < 50; i++) cwrap.ctypes[i].numalias = 0;
     astNode* ast;
     clock_t start_time, end_time;
     double total_CPU_time, total_CPU_time_in_seconds;
@@ -141,19 +146,12 @@ int main (int argc, char* argv[]) {
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
                 g = readGram();
-                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
                 computeFirsts(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
                 computeFollows(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
                 populateParseTable(&pTable, &g, &ff);
-                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
                 initStack(&pStack);
                 initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
                 pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
-                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
-                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
                 ast = makeAST(pTree, 0);
                 long pNodes = 0;
                 getpTreeSize(pTree, &pNodes);
@@ -197,23 +195,54 @@ int main (int argc, char* argv[]) {
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
                 g = readGram();
-                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
                 computeFirsts(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
                 computeFollows(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
                 populateParseTable(&pTable, &g, &ff);
-                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
                 initStack(&pStack);
                 initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
                 pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
-                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
-                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
                 ast = makeAST(pTree, 0);
-                makeSymbolTables(ast);
+                makeConTypeTable(ast, &cwrap);
+                makeSymbolTables(ast, &globalTable, localTables, &cwrap);
+                for(int l = 0; l < 50; l++) {
+                    if (localTables[l].scopeName != NULL) printSymbolTable(&localTables[l]);
+                }
                 break;
 
+            case 6: case 7:
+                memset(&pTable, 0, sizeof(pTable));
+                memset(&ff, 0, sizeof(ff));
+                memset(&pStack, 0, sizeof(pStack));
+                memset(&tList, 0, sizeof(tList));
+                g = readGram();
+                computeFirsts(&g, &ff);
+                computeFollows(&g, &ff);
+                populateParseTable(&pTable, &g, &ff);
+                initStack(&pStack);
+                initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
+                pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
+                ast = makeAST(pTree, 0);
+                makeConTypeTable(ast, &cwrap);
+                makeSymbolTables(ast, &globalTable, localTables, &cwrap);
+                if (choice == 6) {
+                    printSymbolTable(&globalTable);
+                } else {
+                    for(int l = 0; l < 50; l++) {
+                        if (localTables[l].scopeName != NULL) {
+                            int mem = 0;
+                            for (symbolTableEntry* e = localTables[l].symbolTableEntries;
+                                    e != NULL;
+                                    e = e->nextEntry) {
+                                mem += e->width;
+                            }
+
+                            // make a function input param table and add their widths
+                            // to this too ?
+                            printf("%s\t%d\n", localTables[l].scopeName, mem);
+                        }
+                    }
+                }
+                break;
 
             case 8:
                 memset(&pTable, 0, sizeof(pTable));
@@ -221,19 +250,12 @@ int main (int argc, char* argv[]) {
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
                 g = readGram();
-                printf("[COMPLETED] : GRAMMAR GENERATION FROM GRAMMAR FILE.\n");
                 computeFirsts(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FIRST SETS.\n");
                 computeFollows(&g, &ff);
-                printf("[COMPLETED] : COMPUTATION OF FOLLOW SETS.\n");
                 populateParseTable(&pTable, &g, &ff);
-                printf("[COMPLETED] : CREATION OF PARSE TABLE.\n");
                 initStack(&pStack);
                 initLexerDefaults(filename, &b, &eof, globalHashTable, &tList);
-                printf("[COMPLETED] : LEXICAL ANALYSIS.\n");
                 pTree = predictiveParse(&pStack, &pTable, &tList, &ff);
-                printf("[COMPLETED] : SYNTAX ANALYSIS.\n");
-                printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
                 ast = makeAST(pTree, 0);
                 makeConTypeTable(ast, &cwrap);
                 printConTypeTable(&cwrap);
