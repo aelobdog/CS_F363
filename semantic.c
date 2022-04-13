@@ -16,11 +16,41 @@
 #include "semanticDef.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void
 printAstNode(astNode* node) {
     if(node==NULL) printf("null\n");
-    printf("↪ %s (parent : %s)\n", getStringOf(node->nodeName), node->nodeName != PROGRAM ? getStringOf(node->parent->nodeName) : "ROOT");
+
+    switch (node->nodeName) {
+        case TK_RNUM:
+            printf("%s [%lf] (parent : %s)\n", getStringOf(node->nodeName), node->value.rnum, node->nodeName != PROGRAM ? getStringOf(node->parent->nodeName) : "ROOT");
+            break;
+
+        case TK_NUM:
+            printf("%s [%ld] (parent : %s)\n", getStringOf(node->nodeName), node->value.num, node->nodeName != PROGRAM ? getStringOf(node->parent->nodeName) : "ROOT");
+            break;
+
+        case TK_ID:
+            // printf("%d\n", node->dataType);
+            printf("%s [%s|%s|%s|%s] (parent : %s)\n",
+                getStringOf(node->nodeName), 
+                node->value.idPtr,
+                (node->dataType == -1) ? "~" : getStringOf(node->dataType),
+                node->ruid == NULL ? "~" : node->ruid,
+                node->isGlobal == 1 ? "global" : node->isGlobal == 0 ? "local" : "~",
+                getStringOf(node->parent->nodeName));
+        break;
+
+        case TK_RUID:
+        case TK_FIELDID:
+        case TK_FUNID:
+            printf("%s [%s] (parent : %s)\n", getStringOf(node->nodeName), node->value.idPtr, getStringOf(node->parent->nodeName));
+        break;
+
+        default:
+            printf("%s (parent : %s)\n", getStringOf(node->nodeName), node->nodeName != PROGRAM ? getStringOf(node->parent->nodeName) : "ROOT");
+    }
 }
 
 int
@@ -42,51 +72,47 @@ verify(parseTreeNode* ptn, termType T) {
 
 astNode**
 addNode(astNode** ast, termType T, int depth) {
-    astNode** iter = &(*ast)->leftChild;
-    if (iter == NULL) {
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = T;
-        (*iter)->depth = depth;
-    } else {
-        for (; *iter != NULL; iter = &((*iter)->rightSibling));
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = T;
-        (*iter)->depth = depth;
-    }
+        astNode** iter = &(*ast)->leftChild;
+    if (iter != NULL) for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        
+    *iter = (astNode*) malloc(sizeof(astNode));
+    (*iter)->nodeName = T;
+    (*iter)->depth = depth;
     (*iter)->parent = *ast;
+
     return iter;
 }
 
 void
-addId(parseTreeNode *ptn, astNode** ast, int depth) {
+addId(parseTreeNode *ptn, astNode** ast, int depth, termType datatype, char* ruid, int isGlobal) {
     astNode** iter = &(*ast)->leftChild;
-    if (iter == NULL) {
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_ID;
-        (*iter)->depth = depth;
-    } else {
-        for (; *iter != NULL; iter = &((*iter)->rightSibling));
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_ID;
-        (*iter)->depth = depth;
-    }
+    if (iter != NULL) for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        
+    *iter = (astNode*) malloc(sizeof(astNode));
+    (*iter)->nodeName = TK_ID;
+    (*iter)->depth = depth;
     (*iter)->parent = *ast;
+    (*iter)->value.idPtr = strdup(ptn->tokenInfo.tokenPtr->value.idPtr);
+    if (datatype != -1) {
+        (*iter)->dataType = datatype;
+        (*iter)->ruid = (ruid != NULL) ? strdup(ruid) : NULL;
+        (*iter)->isGlobal = isGlobal;
+    } else {
+        (*iter)->dataType = -1;
+        (*iter)->isGlobal = -1;
+    }
 }
 
 void
 addFieldId(parseTreeNode *ptn, astNode** ast, int depth) {
     astNode** iter = &(*ast)->leftChild;
-    if (iter == NULL) {
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_FIELDID;
-        (*iter)->depth = depth;
-    } else {
-        for (; *iter != NULL; iter = &((*iter)->rightSibling));
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_FIELDID;
-        (*iter)->depth = depth;
-    }
+    if (iter != NULL) for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        
+    *iter = (astNode*) malloc(sizeof(astNode));
+    (*iter)->nodeName = TK_FIELDID;
+    (*iter)->depth = depth;
     (*iter)->parent = *ast;
+    (*iter)->value.idPtr = strdup(ptn->tokenInfo.tokenPtr->value.idPtr);
 }
 
 void
@@ -119,7 +145,7 @@ addIdList(parseTreeNode *ptn, astNode** ast, int depth) {
     // the left child has to be a terminal corresponding to an identifier
     // using a function to add in the identifier because it will make making
     // the symbol table stuff easier later.
-    addId(ptn->leftChild, ast, depth);
+    addId(ptn->leftChild, ast, depth, -1, NULL, -1);
     if (ptn->leftChild->rightSibling != NULL) {
         addMoreIds(ptn->leftChild->rightSibling, ast, depth);
     }
@@ -167,33 +193,25 @@ addActOrRedef(parseTreeNode *ptn, astNode** ast, int depth) {
 void
 addRuid(parseTreeNode *ptn, astNode** ast, int depth) {
     astNode** iter = &(*ast)->leftChild;
-    if (iter == NULL) {
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_RUID;
-        (*iter)->depth = depth;
-    } else {
-        for (; *iter != NULL; iter = &((*iter)->rightSibling));
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_RUID;
-        (*iter)->depth = depth;
-    }
+    if (iter != NULL) for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        
+    *iter = (astNode*) malloc(sizeof(astNode));
+    (*iter)->nodeName = TK_RUID;
+    (*iter)->depth = depth;
     (*iter)->parent = *ast;
+    (*iter)->value.idPtr = strdup(ptn->tokenInfo.tokenPtr->value.idPtr);
 }
 
 void
 addFunId(parseTreeNode *ptn, astNode** ast, int depth) {
     astNode** iter = &(*ast)->leftChild;
-    if (iter == NULL) {
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_FUNID;
-        (*iter)->depth = depth;
-    } else {
-        for (; *iter != NULL; iter = &((*iter)->rightSibling));
-        *iter = (astNode*) malloc(sizeof(astNode));
-        (*iter)->nodeName = TK_FUNID;
-        (*iter)->depth = depth;
-    }
+    if (iter != NULL) for (; *iter != NULL; iter = &((*iter)->rightSibling));
+        
+    *iter = (astNode*) malloc(sizeof(astNode));
+    (*iter)->nodeName = TK_FUNID;
+    (*iter)->depth = depth;
     (*iter)->parent = *ast;
+    (*iter)->value.idPtr = strdup(ptn->tokenInfo.tokenPtr->value.idPtr);
 }
 
 void
@@ -272,7 +290,16 @@ addDecl(parseTreeNode *ptn, astNode **ast, int depth) {
     // identifier. No node is going to be created, and trust is being put in
     // the implementer of the symbol table to handle the ID properties properly
     parseTreeNode* temp = ptn->leftChild->rightSibling->rightSibling->rightSibling;
-    addId(temp, ast, depth);
+
+    termType type = ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type;
+    char* ruid = NULL;
+    if (type == TK_RECORD || type == TK_UNION) {
+        ruid = ptn->leftChild->rightSibling->leftChild->leftChild->rightSibling->tokenInfo.tokenPtr->value.idPtr;
+    } else if (type == TK_RUID) {
+        ruid = ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->value.idPtr;
+    }
+
+    addId(temp, ast, depth, type, ruid, !(temp->rightSibling->isTerminal));
 }
 
 void
@@ -337,7 +364,7 @@ addSingOrRecId(parseTreeNode *ptn, astNode** ast, int depth) {
     }
     else iter = ast;
 
-    addId(ptn->leftChild, iter, depth);
+    addId(ptn->leftChild, iter, depth, -1, NULL, -1);
     
     if (iter != ast) {
         addConstVar(ptn->leftChild->rightSibling, iter, depth);
@@ -386,13 +413,18 @@ addExpPrime(parseTreeNode *ptn, astNode** ast, int depth) {
 void
 addRNum(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, TK_RNUM);
-    addNode(ast, TK_RNUM, depth);
+    astNode** iter = addNode(ast, TK_RNUM, depth);
+    // printf("%s===", ptn->tokenInfo.tokenPtr->value.idPtr);
+    sscanf(ptn->tokenInfo.tokenPtr->value.idPtr, "%lf", &((*iter)->value.rnum));
+    // printf("%lf\n", (*iter)->value.rnum);
 }
 
 void
 addNum(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, TK_NUM);
-    addNode(ast, TK_NUM, depth);
+    astNode** iter = addNode(ast, TK_NUM, depth);
+    sscanf(ptn->tokenInfo.tokenPtr->value.idPtr, "%ld", &((*iter)->value.num));
+    // (*iter)->value.num = atoi(ptn->tokenInfo.tokenPtr->value.idPtr);
 }
 
 void
@@ -697,7 +729,7 @@ addParList(parseTreeNode *ptn, astNode** ast, int depth, int createNode) {
     if (createNode) iter = addNode(ast, PARAMETER_LIST, depth);
     else iter = ast;
 
-    addId(ptn->leftChild->rightSibling, iter, depth + 1);
+    addId(ptn->leftChild->rightSibling, iter, depth + 1, -1, NULL, -1);
     if (ptn->leftChild->rightSibling->rightSibling != NULL)
         addRemList(ptn->leftChild->rightSibling->rightSibling, iter, depth);
 }

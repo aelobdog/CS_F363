@@ -3,34 +3,58 @@
 
 #include "parserDef.h"
 
-typedef unsigned long ul;
-
 typedef enum {
    INTEGER,
    REAL,
    RECORD,
    UNION
-} dataType;
+} dataTypeTag;
 
-// int typewidths[2] = {4, 8};
+typedef enum {
+   LOCAL,
+   GLOBAL
+} scopeNature;
+
+typedef enum {
+   LOCALVAR,
+   INPUTPAR,
+   OUTPUTPAR
+} usage;
+
+typedef struct {
+   dataTypeTag tag;
+   struct dataTypeExp* type;
+} dataTypeExp;
+
+typedef struct typeName {
+   char* name;
+   struct typeName* aliases;
+} typeName;
 
 typedef struct symbolTableEntry {
-   char* name;
-   dataType type;
-   ul offset;
-
+   char* name; // identifier value
+   typeName* typeNames; // only for records (unions?)
+   dataTypeExp typeExp; // full datatype
+   int width; // space required by the variable
+   scopeNature scopNat; // local ? global ?
+   int offset; // prev offset + cur width
+   
    struct symbolTableEntry* nextEntry; // to deal with collisions (post hashing)
 } symbolTableEntry;
 
 typedef struct symbolTable {
+   struct symbolTable* parentTable;
    char* scopeName; // could be a function name, or identifier for scopes of if, while, etc...
    symbolTableEntry* symbolTableEntries;
-   ul tableOffset;
+   int tableOffset;
 } symbolTable;
 
 typedef struct astNode{
-   symbolTableEntry* stEntry;
    termType nodeName;
+   tokenValue value;
+   termType dataType;
+   char* ruid;
+   int isGlobal; // 1 = true, 0 = false
    struct astNode* parent;
    struct astNode* rightSibling;
    struct astNode* leftChild;

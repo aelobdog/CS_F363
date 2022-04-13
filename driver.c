@@ -145,7 +145,7 @@ int main (int argc, char* argv[]) {
                 break;
 
             default: printf("Please enter a value between 0-4");
-                     continue;
+                continue;
         }
     }
     return 0;

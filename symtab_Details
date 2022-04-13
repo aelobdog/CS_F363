@@ -1,0 +1,13 @@
+Scope- module name
+
+type name- if variable is of record type, then print name of record definition and also print all the names of aliases used for the record definition, e.g. if definetype record  #abc as #def, then print #abc, #pqr. If more name equivalent aliases of record type were defined anywhere in the program, mention all.
+
+type expression- Print type of variable (if primitive then print int or real as applied, if record, then print as a cartesian product e.g. <int, real, int>, if nested record - use angular bracket pair as appropriate.For example - <int, real, <real, real, int>>. 
+
+width - if the variable is of record type, then total sum of width of all field, if the variable is of type variant record, then print the sum of fixed length fields plus the maximum of all field widths used in variant part) 
+
+isGlobal- if variable is global, print global else print --- (three hyphens)
+
+offset- Include input and output parameters prior to all local variables and start offsets from 0 onwards.[if the variable is global, its offset is taken from the global perspective, and not computed from local perspective]
+
+variable usage - If the variable is local, then print "local", if the variable is an input parameter, then print "input parameter" and if the variable is an output parameter, then print "output parameter".
