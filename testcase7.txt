@@ -1,22 +1,43 @@
-% _ssmN 
-% input parameter list [int d5];
-%     record #ass
-% 		type real: su; 
-% 		type #fuckme: ics;
-% 	endrecord
-% 
-%     record #gas
-% 		type real: su; 
-% 		type #gogobebe: ics;
-% 	endrecord
-% 
-%     return;
-% end
+ 
+ _ssmN 
+ input parameter list [int d5];
+     record #ass
+ 		type real: su; 
+ 		type #fuckme: ics;
+ 	endrecord
+ 
+  record #gas
+ 		type real: su; 
+ 		type #gogobebe: ics;
+ 	endrecord
+
+  type real: d2;
+ 
+     return;
+ end
+
+_spmN 
+input parameter list [int d5]
+output parameter list [int b3];
+    record #asds
+		type real: su; 
+		type real: ics;
+	endrecord
+
+    record #grss
+		type real: su; 
+		type #supa: rec;
+	endrecord
+
+    type real: c2;
+
+    return;
+end
 
 _sumN 
 input parameter list [int d5]
 output parameter list [int b3];
-    record #asds
+    record #asdd
 		type real: su; 
 		type real: ics;
 	endrecord

@@ -163,10 +163,14 @@ void makeSymbolTables(astNode* ast, symbolTable* globalTable, symbolTable* local
     for(int i = 0; iter!=NULL; iter = iter->rightSibling, i++) {
         if(iter->nodeName == OTHERFUNCTION) {
             // put a for loop to include all the functions under otherfunction !
-            makeSymbolTable(iter->leftChild->leftChild, globalTable, localTables, i, cwrap); //calling on funid
+            astNode* sib = iter->leftChild;
+            for(int j = 1; sib!= NULL; sib = sib->rightSibling, j++) {
+               
+               makeSymbolTable(sib->leftChild, globalTable, localTables, j, cwrap); //calling on funid
+            }
         }
         else if(iter->nodeName == MAINFUNCTION) {
-            makeSymbolTable(iter, globalTable, localTables, i, cwrap); //calling on main
+            makeSymbolTable(iter, globalTable, localTables, 0, cwrap); //calling on main
         }
     }
 }
@@ -240,6 +244,7 @@ void makeSymbolTable(astNode* ast, symbolTable* globalTable, symbolTable* localT
     }
 
     else if(ast->nodeName == TK_FUNID) {
+       printf("got %s\n", ast->leafInfo->value.idPtr);
         //set scopename to funid
         //printf("FUNC NAME : %s\n", ast->leafInfo->value.idPtr);
         astNode* sib = ast->rightSibling->rightSibling;
@@ -259,6 +264,7 @@ void makeSymbolTable(astNode* ast, symbolTable* globalTable, symbolTable* localT
                 else {
                     table = &(localTables[index]);
                     table->scopeName = strdup(ast->leafInfo->value.idPtr);
+                    printf("%d,%s\n",index,table->scopeName);
                 }
 
                 symbolTableEntry* entry;

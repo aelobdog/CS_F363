@@ -194,6 +194,9 @@ int main (int argc, char* argv[]) {
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
+                memset(&globalTable, 0, sizeof(globalTable));
+                memset(&localTables, 0, sizeof(localTables));
+                memset(&cwrap, 0, sizeof(cwrap));
                 g = readGram();
                 computeFirsts(&g, &ff);
                 computeFollows(&g, &ff);
@@ -214,6 +217,8 @@ int main (int argc, char* argv[]) {
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
+                memset(&globalTable, 0, sizeof(globalTable));
+                memset(&localTables, 0, sizeof(localTables));
                 g = readGram();
                 computeFirsts(&g, &ff);
                 computeFollows(&g, &ff);
@@ -229,6 +234,7 @@ int main (int argc, char* argv[]) {
                 } else {
                     for(int l = 0; l < 50; l++) {
                         if (localTables[l].scopeName != NULL) {
+                            printf("table %d\n", l);
                             int mem = 0;
                             for (symbolTableEntry* e = localTables[l].symbolTableEntries;
                                     e != NULL;
@@ -249,6 +255,9 @@ int main (int argc, char* argv[]) {
                 memset(&ff, 0, sizeof(ff));
                 memset(&pStack, 0, sizeof(pStack));
                 memset(&tList, 0, sizeof(tList));
+                memset(&cwrap, 0, sizeof(cwrap));
+                memset(&pTree, 0 ,sizeof(pTree));
+                memset(&ast, 0, sizeof(ast));
                 g = readGram();
                 computeFirsts(&g, &ff);
                 computeFollows(&g, &ff);
