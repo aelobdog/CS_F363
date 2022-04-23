@@ -1,10 +1,14 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #ifndef SEMANTIC_h
 #define SEMANTIC_h
 #include "semanticDef.h"
 
 void makeConTypeTable(astNode* ast, conTypeWrapper* cwrap);
 void printConTypeTable(conTypeWrapper* cwrap);
-void printSymbolTable(symbolTable* sTable);
+void printSymbolTable(symbolTable* sTable, conTypeWrapper* cwrap);
 void makeSymbolTable(astNode* ast, symbolTable* globalTable, symbolTable localTables[50], int index, conTypeWrapper*);
 void makeSymbolTables(astNode* ast, symbolTable* globalTable, symbolTable localTables[50], conTypeWrapper*);
 // ----------------------------------------------------------------------------

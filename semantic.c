@@ -1,11 +1,6 @@
-// TODO:
-// 
-// maybe have different structs for leaves and internal nodes and have the ast use a 
-// union with pointers to decide which to load ?
-//
-// addNode and addLeaf should be different ?
-//
-// the value of num/rnum is still in idPtr, change to number ?
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
 
 
 #include "semantic.h"
@@ -163,6 +158,16 @@ addIdList(parseTreeNode *ptn, astNode** ast, int depth) {
     // the left child has to be a terminal corresponding to an identifier
     // using a function to add in the identifier because it will make making
     // the symbol table stuff easier later.
+
+    // termType type;
+    // char* ruid = NULL;
+
+    // if(! ptn->) {
+    //     type = ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type;
+    // } else {
+    //     ruid = strdup(ptn->leftChild->rightSibling->leftChild->tokenInfo.tokenPtr->value.idPtr);
+    // }
+
     addId(ptn->leftChild, ast, depth, -1, NULL, -1);
     if (ptn->leftChild->rightSibling != NULL) {
         addMoreIds(ptn->leftChild->rightSibling, ast, depth);
@@ -423,7 +428,6 @@ addExpPrime(parseTreeNode *ptn, astNode** ast, int depth) {
     if (ptn->leftChild->rightSibling->rightSibling != NULL) {
         iter = addNode(
                 ast,
-                // getting the operator (watch out for dirty code!)
                 ptn->leftChild->rightSibling->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type,
                 depth);
     } else iter = ast;
@@ -473,7 +477,7 @@ void
 addFactor(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, FACTOR);
     if (ptn->leftChild->isTerminal) 
-        addArithExp(ptn->leftChild->rightSibling, ast, depth); // increase depth and make a node for this case ?
+        addArithExp(ptn->leftChild->rightSibling, ast, depth); 
     else
         addVar(ptn->leftChild, ast, depth);
 }
@@ -485,7 +489,6 @@ addTerm(parseTreeNode *ptn, astNode** ast, int depth) {
     if (ptn->leftChild->rightSibling != NULL) {
         iter = addNode(
                 ast,
-                // getting the operator (watch out for dirty code!)
                 ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type,
                 depth);
     } else iter = ast;
@@ -506,7 +509,6 @@ addArithExp(parseTreeNode *ptn, astNode** ast, int depth) {
     if (ptn->leftChild->rightSibling != NULL) {
         iter = addNode(
                 ast,
-                // getting the operator (watch out for dirty code!)
                 ptn->leftChild->rightSibling->leftChild->leftChild->tokenInfo.tokenPtr->type,
                 depth);
     } else iter = ast;
@@ -576,10 +578,6 @@ addBoolExp(parseTreeNode *ptn, astNode** ast, int depth) {
 void
 addIterStmt(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, ITERATIVESTMT);
-    // NOTE(ashwin)
-    // in the ast, I'm chosing to assign ITERATIVESTMT to the node as its name 
-    // in place of TK_WHILE because it feels more consistent with the names of
-    // other similar nodes. This can me changed later at any time.
     astNode** iter = addNode(ast, ITERATIVESTMT, depth);
     addBoolExp(ptn->leftChild->rightSibling->rightSibling, iter, depth + 1);
     addStmt(ptn->leftChild->rightSibling->rightSibling->rightSibling->rightSibling, iter, depth + 1);
@@ -589,11 +587,6 @@ addIterStmt(parseTreeNode *ptn, astNode** ast, int depth) {
 
 int
 addThenPart(parseTreeNode *ptn, astNode** ast, int depth) {
-    // NOTE(ashwin)
-    // This function is purely to keep the code neat. This can actually be done
-    // inside the body of addCondStmt, but I want to add a node in the ast to
-    // denote the if's body and the else's body separately.
-    
     astNode** iter = addNode(ast, TK_THEN, depth);
     addStmt(ptn, iter, depth + 1);
     if (ptn->rightSibling->tokenInfo.tokenType != ELSEPART) {
@@ -608,10 +601,6 @@ addElsePart(parseTreeNode *ptn, astNode** ast, int depth) {
     verify(ptn, ELSEPART);
 
     if (ptn->leftChild->rightSibling == NULL) return;
-    // NOTE(ashwin)
-    // This function is purely to keep the code neat. This can actually be done
-    // inside the body of addCondStmt, but I want to add a node in the ast to
-    // denote the if's body and the else's body separately.
     astNode** iter = addNode(ast, TK_ELSE, depth);
     addStmt(ptn->leftChild->rightSibling, iter, depth + 1);
     if (!ptn->leftChild->rightSibling->rightSibling->isTerminal)
@@ -756,7 +745,20 @@ addParList(parseTreeNode *ptn, astNode** ast, int depth, int createNode) {
     if (createNode) iter = addNode(ast, PARAMETER_LIST, depth);
     else iter = ast;
 
-    addId(ptn->leftChild->rightSibling, iter, depth + 1, -1, NULL, -1);
+    termType type;
+    char* ruid = NULL;
+    if(ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type == TK_INT ||
+        ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type == TK_REAL) {
+        type = ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type;
+    } else if  (ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type == TK_RECORD ||
+        ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type == TK_UNION) {
+        type = ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->type;
+        ruid = strdup(ptn->leftChild->leftChild->leftChild->rightSibling->tokenInfo.tokenPtr->value.idPtr);
+    } else {
+        ruid = strdup(ptn->leftChild->leftChild->leftChild->tokenInfo.tokenPtr->value.idPtr);
+    }
+
+    addId(ptn->leftChild->rightSibling, iter, depth + 1, type, ruid, 1);
     if (ptn->leftChild->rightSibling->rightSibling != NULL)
         addRemList(ptn->leftChild->rightSibling->rightSibling, iter, depth);
 }

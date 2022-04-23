@@ -1,15 +1,19 @@
+// Group number 13
+// Ashwin Kiran Godbole 2018B5A70423P
+// Samarth Krishna Murthy 2018B2A70362P
+
 #ifndef SEMANTICDEF_H
 #define SEMANTICDEF_H
 
 #include "lexerDef.h"
 #include "parserDef.h"
 
-typedef enum {
+typedef enum scopeNature{
    LOCAL,
    GLOBAL
 } scopeNature;
 
-typedef enum {
+typedef enum usage{
    LOCALVAR,
    INPUTPAR,
    OUTPUTPAR
@@ -31,6 +35,7 @@ typedef struct symbolTableEntry {
    dataTypeExp typeExp; // full datatype
    int width; // space required by the variable
    scopeNature scopNat; // local ? global ?
+   usage us; //local, input, output?s
    int offset; // prev offset + cur width
    
    struct symbolTableEntry* nextEntry; // to deal with collisions (post hashing)

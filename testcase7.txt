@@ -1,19 +1,20 @@
  
  _ssmN 
- input parameter list [int d5];
-     record #ass
+ input parameter list [int d5, int b3]
+ output parameter list [int c5];
+     record #sa
  		type real: su; 
- 		type #fuckme: ics;
+ 		type #mef: ics;
  	endrecord
  
   record #gas
  		type real: su; 
- 		type #gogobebe: ics;
+ 		type #gogo: ics;
  	endrecord
 
   type real: d2;
  
-     return;
+     return [c5];
  end
 
 _spmN 
@@ -73,24 +74,24 @@ _main
     type real: d2 : global;
     type #grades: c2;
     type record #marks: b3;
-%
-%     b5 <--- 5.55 / (3 + 1) * 2;
-%
-%    read(d2);
-%
-%    [b2] <--- call _random with parameters [d2, b2];
-%
-%    while ((b2 > d2) @@@ (b2 < d2))
-%        read(b2);
-%        b2 <--- 3;
-%    endwhile
-%
-%    if (~ (b2 < d2)) then
-%        read(b2);
-%        b2 <--- b2 * 2;
-%    else
-%        write(b2);
-%    endif
-%    
+   b5 <--- 5.55 / (3 + 1) * 2;
+
+
+    read(d2);
+
+    [b2] <--- call _random with parameters [d2, b2];
+
+    while ((b2 > d2) @@@ (b2 < d2))
+        read(b2);
+        b2 <--- 3;
+    endwhile
+
+    if (~ (b2 < d2)) then
+        read(b2);
+        b2 <--- b2 * 2;
+    else
+        write(b2);
+    endif
+    
    return [b2, d2];
 end

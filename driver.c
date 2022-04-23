@@ -1,8 +1,6 @@
 // Group number 13
 // Ashwin Kiran Godbole 2018B5A70423P
 // Samarth Krishna Murthy 2018B2A70362P
-//
-// TODO: MEMSET all the arrays and shit at the beginning in each case
 
 #include <stdio.h>
 #include <time.h>
@@ -59,6 +57,8 @@ int main (int argc, char* argv[]) {
         printf("\t6. Print global variables\n");
         printf("\t7. Print activation record sizes\n");
         printf("\t8. Print record types and sizes\n");
+        printf("\t9: Typechecking : [NOT IMPLEMENTED]\n");
+        printf("\t10: Code generation and dynamic type checking : [NOT IMPLEMENTED]\n");
         printf("Choice : ");
         scanf("%d", &choice);
         switch (choice) {
@@ -109,7 +109,7 @@ int main (int argc, char* argv[]) {
                 printf("[COMPLETED] : CREATION OF PARSE TREE.\n\n");
                 fprintParseTree(pTree);
                 printf("\n\n");
-                printParseTree(pTree);
+                //printParseTree(pTree);
                 fclose(b.source);
                 break;
             
@@ -135,7 +135,7 @@ int main (int argc, char* argv[]) {
                 // fprintParseTree(pTree);
                 ast = makeAST(pTree, 0);
                 printf("[COMPLETED] : AST GENERATED.\n\n");
-                printf("AST TRAVERSAL USING [ PREORDER ] TRAVERSAL\n");
+                printf("AST TRAVERSAL USING [ INORDER ] TRAVERSAL\n");
                 printAST(ast);
                 fclose(b.source);
                 break;
@@ -207,8 +207,9 @@ int main (int argc, char* argv[]) {
                 ast = makeAST(pTree, 0);
                 makeConTypeTable(ast, &cwrap);
                 makeSymbolTables(ast, &globalTable, localTables, &cwrap);
+                printSymbolTable(&globalTable, &cwrap);
                 for(int l = 0; l < 50; l++) {
-                    if (localTables[l].scopeName != NULL) printSymbolTable(&localTables[l]);
+                    if (localTables[l].scopeName != NULL) printSymbolTable(&localTables[l],&cwrap);
                 }
                 break;
 
@@ -219,6 +220,7 @@ int main (int argc, char* argv[]) {
                 memset(&tList, 0, sizeof(tList));
                 memset(&globalTable, 0, sizeof(globalTable));
                 memset(&localTables, 0, sizeof(localTables));
+                memset(&cwrap, 0, sizeof(cwrap));
                 g = readGram();
                 computeFirsts(&g, &ff);
                 computeFollows(&g, &ff);
@@ -230,21 +232,18 @@ int main (int argc, char* argv[]) {
                 makeConTypeTable(ast, &cwrap);
                 makeSymbolTables(ast, &globalTable, localTables, &cwrap);
                 if (choice == 6) {
-                    printSymbolTable(&globalTable);
+                    printSymbolTable(&globalTable,&cwrap);
                 } else {
                     for(int l = 0; l < 50; l++) {
                         if (localTables[l].scopeName != NULL) {
-                            printf("table %d\n", l);
+                            //printf("table %d\n", l);
                             int mem = 0;
                             for (symbolTableEntry* e = localTables[l].symbolTableEntries;
                                     e != NULL;
                                     e = e->nextEntry) {
                                 mem += e->width;
                             }
-
-                            // make a function input param table and add their widths
-                            // to this too ?
-                            printf("%s\t%d\n", localTables[l].scopeName, mem);
+                            printf("%s\t%d bytes\n", localTables[l].scopeName, mem);
                         }
                     }
                 }
@@ -270,7 +269,11 @@ int main (int argc, char* argv[]) {
                 printConTypeTable(&cwrap);
                 break;
 
-            default: printf("Please enter a value between 0-4");
+            case 9: case 10:
+                printf("NOT IMPLEMENTED\n");
+                break;
+
+            default: printf("Please enter a value between 0-4\n");
                 continue;
         }
     }
